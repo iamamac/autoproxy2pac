@@ -14,6 +14,7 @@ So you can bypass GFW's blockade on almost every browser
 
 @todo:
 - Read parameters from command-line
+- Support user-defined rule
 - Generate PAC file using shExpMatch function instead of regular expression, should be faster,
   but it's already fast enough on Safari 4
 '''
