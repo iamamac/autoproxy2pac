@@ -35,16 +35,30 @@ with closing(urllib.urlopen(gfwlistUrl)) as response:
 # Generate PAC file
 print("Generating %s ..." % pacFilepath)
 
-with open(pacFilepath, 'w') as f:
-    proxyVar = "proxy"
-    defaultVar = "default"
-    
-    # PAC header
-    f.write('''function FindProxyForURL(url, host) {
+# Variable names in the PAC file
+proxyVar = "proxy"
+defaultVar = "default"
+
+# Separators
+rulesBegin = "//-- AUTO-GENERATED RULES, DO NOT MODIFY!"
+rulesEnd = "//-- END OF AUTO-GENERATED RULES"
+
+# Default header & footer
+pacHeader = '''function FindProxyForURL(url, host) {
   %s = "%s";
   %s = "%s";
 
-''' % (defaultVar, defaultString, proxyVar, proxyString))
+  %s
+''' % (defaultVar, defaultString, proxyVar, proxyString, rulesBegin)
+
+pacFooter = '''  %s
+
+  return %s
+}
+''' % (rulesEnd, defaultVar)
+
+with open(pacFilepath, 'w') as f:
+    f.write(pacHeader)
     
     # The syntax of the list is based on Adblock Plus filter rules (http://adblockplus.org/en/filters)
     #   Filter options (those parts start with "$") is not supported
@@ -92,10 +106,6 @@ with open(pacFilepath, 'w') as f:
                     jsRegexp = ".*"
                     print("WARNING: There is one rule that matches all URL, which is highly *NOT* recommended: %s", line)
             
-            f.write('''  if(/%s/i.test(url)) return %s;\n''' % (jsRegexp, retString))
+            f.write("  if(/%s/i.test(url)) return %s;\n" % (jsRegexp, retString))
     
-    # PAC footer
-    f.write('''
-  return %s
-}
-''' % defaultVar)
+    f.write(pacFooter)
