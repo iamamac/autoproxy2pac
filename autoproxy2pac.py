@@ -22,7 +22,7 @@ So you can bypass GFW's blockade on almost every browser
 pacFilepath = "fuckgfw.pac"
 gfwlistUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
 proxyString = "PROXY 166.111.139.13:9876"
-directAccessString = "DIRECT"
+defaultString = "DIRECT"
 
 # Download GFW list
 print("Fetching GFW list from %s ..." % gfwlistUrl)
@@ -37,14 +37,14 @@ print("Generating %s ..." % pacFilepath)
 
 with open(pacFilepath, 'w') as f:
     proxyVar = "proxy"
-    directAccessVar = "direct"
+    defaultVar = "default"
     
     # PAC header
     f.write('''function FindProxyForURL(url, host) {
   %s = "%s";
   %s = "%s";
 
-''' % (directAccessVar, directAccessString, proxyVar, proxyString))
+''' % (defaultVar, defaultString, proxyVar, proxyString))
     
     # The syntax of the list is based on Adblock Plus filter rules (http://adblockplus.org/en/filters)
     #   Filter options (those parts start with "$") is not supported
@@ -58,7 +58,7 @@ with open(pacFilepath, 'w') as f:
             # Exceptions
             if line.startswith("@@"):
                 line = line[2:]
-                retString = directAccessVar
+                retString = defaultVar
             
             # Regular expressions
             if line.startswith("/") and line.endswith("/"):
@@ -98,4 +98,4 @@ with open(pacFilepath, 'w') as f:
     f.write('''
   return %s
 }
-''' % directAccessVar)
+''' % defaultVar)
