@@ -39,8 +39,8 @@ with closing(urllib.urlopen(gfwlistUrl)) as response:
 #===============================================================================
 
 # Variable names in the PAC file
-proxyVar = "proxy"
-defaultVar = "default"
+proxyVar = "PROXY"
+defaultVar = "DEFAULT"
 
 # String constants
 descTemplate = '''/*
