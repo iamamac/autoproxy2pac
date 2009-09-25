@@ -17,8 +17,19 @@
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
-import os
+import os, re
 import autoproxy2pac
+
+commonProxy = { 'gappproxy'    : 'PROXY 127.0.0.1:8000',
+                'tor'          : 'SOCKS 127.0.0.1:9050',
+                'jap'          : 'PROXY 127.0.0.1:4001',
+                'your-freedom' : 'PROXY 127.0.0.1:8080',
+                'wu-jie'       : 'PROXY 127.0.0.1:9666',
+                'free-gate'    : 'PROXY 127.0.0.1:8580',
+                'puff'         : 'PROXY 127.0.0.1:1984',
+               }
+
+pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
@@ -42,14 +53,23 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(pac)
 
 class PacGenHandler(webapp.RequestHandler):
-    def get(self, type, host, port):
+    def get(self, param):
+        param = param.lower()
+        proxyString = commonProxy.get(param)
+        if proxyString == None:
+            match = pacGenUrlRegxp.match(param)
+            if match == None: return
+            type, host, port = match.groups()
+            type = 'SOCKS' if type == 'socks' else 'PROXY'
+            proxyString = "%s %s:%s" % (type, host, port)
+        
         ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
         
         ruleList, ruleListDate = autoproxy2pac.fetchRuleList(ruleListUrl)
         rules = { 'ruleListUrl'  : ruleListUrl,
                   'ruleListDate' : ruleListDate,
                   'ruleListCode' : autoproxy2pac.rule2js(ruleList) }
-        configs = { 'proxyString'   : "%s %s:%s" % ('PROXY' if type == 'http' else 'SOCKS', host, port),
+        configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
         pac = autoproxy2pac.generatePac(rules, configs, autoproxy2pac.defaultPacTemplate)
 
@@ -60,7 +80,7 @@ class PacGenHandler(webapp.RequestHandler):
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/', MainHandler),
-                                          ('/pac/(http|socks)/([\w.]+)/(\d+)', PacGenHandler)],
+                                          ('/pac/(.*)', PacGenHandler)],
                                          debug=True)
     
     from google.appengine.ext.webapp.util import run_wsgi_app
