@@ -38,6 +38,7 @@ class MainHandler(webapp.RequestHandler):
 
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
         self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
+        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
         self.response.out.write(pac)
 
 class PacGenHandler(webapp.RequestHandler):
@@ -54,6 +55,7 @@ class PacGenHandler(webapp.RequestHandler):
 
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
         self.response.headers['Last-Modified'] = ruleListDate
+        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
         self.response.out.write(pac)
 
 if __name__ == '__main__':
