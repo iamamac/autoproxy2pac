@@ -65,12 +65,12 @@ def rule2js(ruleList):
     for line in ruleList.splitlines()[1:]:
         # Ignore the first line ([AutoProxy x.x]), empty lines and comments
         if line and not line.startswith("!"):
-            retString = proxyVar
+            useProxy = True
             
             # Exceptions
             if line.startswith("@@"):
                 line = line[2:]
-                retString = defaultVar
+                useProxy = False
             
             # Regular expressions
             if line.startswith("/") and line.endswith("/"):
@@ -103,7 +103,11 @@ def rule2js(ruleList):
                     jsRegexp = ".*"
                     logging.warning("There is one rule that matches all URL, which is highly *NOT* recommended: %s", line)
             
-            jsCode.append("  if(/%s/i.test(url)) return %s;" % (jsRegexp, retString))
+            jsLine = "  if(/%s/i.test(url)) return %s;" % (jsRegexp, proxyVar if useProxy else defaultVar)
+            if useProxy:
+                jsCode.append(jsLine)
+            else:
+                jsCode.insert(0, jsLine)
     
     return '\n'.join(jsCode)
 
