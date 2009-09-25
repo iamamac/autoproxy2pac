@@ -40,8 +40,25 @@ class MainHandler(webapp.RequestHandler):
         self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
         self.response.out.write(pac)
 
+class PacGenHandler(webapp.RequestHandler):
+    def get(self, type, host, port):
+        ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
+        
+        ruleList, ruleListDate = autoproxy2pac.fetchRuleList(ruleListUrl)
+        rules = { 'ruleListUrl'  : ruleListUrl,
+                  'ruleListDate' : ruleListDate,
+                  'ruleListCode' : autoproxy2pac.rule2js(ruleList) }
+        configs = { 'proxyString'   : "%s %s:%s" % ('PROXY' if type == 'http' else 'SOCKS', host, port),
+                    'defaultString' : "DIRECT" }
+        pac = autoproxy2pac.generatePac(rules, configs, autoproxy2pac.defaultPacTemplate)
+
+        self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
+        self.response.headers['Last-Modified'] = ruleListDate
+        self.response.out.write(pac)
+
 if __name__ == '__main__':
-    application = webapp.WSGIApplication([('/', MainHandler)],
+    application = webapp.WSGIApplication([('/', MainHandler),
+                                          ('/pac/(http|socks)/([\w.]+)/(\d+)', PacGenHandler)],
                                          debug=True)
     
     from google.appengine.ext.webapp.util import run_wsgi_app
