@@ -6,3 +6,4 @@ api_version: 1
 handlers:
 - url: .*
   script: main.py
+  secure: always
