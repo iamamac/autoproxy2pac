@@ -1,0 +1,37 @@
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>AutoProxy2PAC - 全平台智能代理</title>
+</head>
+<html>
+  <body>
+    <h1>AutoProxy2PAC</h1>
+    <h4>正常网站——直接访问<br/>被墙站点——使用代理</h4>
+    <form action="/" method="post" style="background-color:#C8E8F3;padding:1em;width:350">
+      <div>请填写你的代理信息</div>
+      <div>
+        <select name="type">
+          <option value="PROXY">HTTP</option>
+          <option value="SOCKS">SOCKS</option>
+        </select>
+        <input type="text" name="ip" size="16" value="127.0.0.1"/>:<input type="text" name="port" size="5"/>
+      </div>
+      <br/>
+      <div><input type="submit" value="生成PAC文件"/></div>
+    </form>
+    <p>使用方法：将浏览器的“代理服务器自动配置脚本”指向此文件即可（<a href="#">配置方法</a>）<br/>
+    Firefox用户可安装<a href="http://www.autoproxy.org/">AutoProxy</a>插件获得更多功能</p>
+    <p>请注意PAC文件本身并无翻墙功能，<b>需要配合翻墙工具使用</b></p>
+    <hr>
+    <div style="text-align:center"><font size="-1">我的Twitter: <a href="https://twitter.com/mengxl">@mengxl</a> | 感谢<a href="http://www.autoproxy.org/en/subscriptions">gfwList</a>提供代理规则</font></div>
+    <!-- Google Analytics code -->
+	<script type="text/javascript">
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+	try {
+	var pageTracker = _gat._getTracker("UA-10810225-1");
+	pageTracker._trackPageview();
+	} catch(err) {}</script>
+  </body>
+</html>
