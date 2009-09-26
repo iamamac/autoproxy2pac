@@ -19,6 +19,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 import os, re
 import autoproxy2pac
+from datastore import RuleList
 
 commonProxy = { 'gappproxy'    : 'PROXY 127.0.0.1:8000',
                 'tor'          : 'SOCKS 127.0.0.1:9050',
@@ -27,7 +28,7 @@ commonProxy = { 'gappproxy'    : 'PROXY 127.0.0.1:8000',
                 'wu-jie'       : 'PROXY 127.0.0.1:9666',
                 'free-gate'    : 'PROXY 127.0.0.1:8580',
                 'puff'         : 'PROXY 127.0.0.1:1984',
-               }
+              }
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -37,15 +38,11 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, {}))
     
     def post(self):
-        ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
-        
-        ruleList, ruleListDate = autoproxy2pac.fetchRuleList(ruleListUrl)
-        rules = { 'ruleListUrl'  : ruleListUrl,
-                  'ruleListDate' : ruleListDate,
-                  'ruleListCode' : autoproxy2pac.rule2js(ruleList) }
+        rules = RuleList.getList('gfwlist')
+        if rules == None: return
         configs = { 'proxyString'   : "%s %s:%s" % (self.request.get('type'), self.request.get('ip'), self.request.get('port')),
                     'defaultString' : "DIRECT" }
-        pac = autoproxy2pac.generatePac(rules, configs, autoproxy2pac.defaultPacTemplate)
+        pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
 
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
         self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
@@ -63,18 +60,14 @@ class PacGenHandler(webapp.RequestHandler):
             type = 'SOCKS' if type == 'socks' else 'PROXY'
             proxyString = "%s %s:%s" % (type, host, port)
         
-        ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
-        
-        ruleList, ruleListDate = autoproxy2pac.fetchRuleList(ruleListUrl)
-        rules = { 'ruleListUrl'  : ruleListUrl,
-                  'ruleListDate' : ruleListDate,
-                  'ruleListCode' : autoproxy2pac.rule2js(ruleList) }
+        rules = RuleList.getList('gfwlist')
+        if rules == None: return
         configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
-        pac = autoproxy2pac.generatePac(rules, configs, autoproxy2pac.defaultPacTemplate)
-
+        pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
+        
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
-        self.response.headers['Last-Modified'] = ruleListDate
+        self.response.headers['Last-Modified'] = rules.date
         self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
         self.response.out.write(pac)
 

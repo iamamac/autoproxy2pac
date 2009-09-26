@@ -1,9 +1,12 @@
 application: autoproxy2pac
-version: 1
+version: 2
 runtime: python
 api_version: 1
 
 handlers:
+- url: /\.cron
+  script: cron.py
+  login: admin
 - url: .*
   script: main.py
   secure: always
