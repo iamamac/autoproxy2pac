@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Copyright 2007 Google Inc.
 #
@@ -21,13 +22,13 @@ import os, re
 import autoproxy2pac
 from datastore import RuleList
 
-commonProxy = { 'gappproxy'    : 'PROXY 127.0.0.1:8000',
-                'tor'          : 'SOCKS 127.0.0.1:9050',
-                'jap'          : 'PROXY 127.0.0.1:4001',
-                'your-freedom' : 'PROXY 127.0.0.1:8080',
-                'wu-jie'       : 'PROXY 127.0.0.1:9666',
-                'free-gate'    : 'PROXY 127.0.0.1:8580',
-                'puff'         : 'PROXY 127.0.0.1:1984',
+commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
+                'tor'          : ('Tor', 'SOCKS 127.0.0.1:9050'),
+                'jap'          : ('JAP', 'PROXY 127.0.0.1:4001'),
+                'your-freedom' : ('Your Freedom', 'PROXY 127.0.0.1:8080'),
+                'wu-jie'       : ('无界', 'PROXY 127.0.0.1:9666'),
+                'free-gate'    : ('自由门', 'PROXY 127.0.0.1:8580'),
+                'puff'         : ('Puff', 'PROXY 127.0.0.1:1984'),
               }
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
@@ -35,12 +36,18 @@ pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 class MainHandler(webapp.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'index.html')
-        self.response.out.write(template.render(path, {}))
+        self.response.out.write(template.render(path, { 'commonProxy' : ((k, v[0]) for k, v in commonProxy.items()) }))
     
     def post(self):
+        proxy = commonProxy.get(self.request.get('name'))
+        if proxy:
+            proxyString = proxy[1]
+        else:
+            proxyString = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
+        
         rules = RuleList.getList('gfwlist')
         if rules == None: return
-        configs = { 'proxyString'   : "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port')),
+        configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
         pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
 
