@@ -40,7 +40,7 @@ class MainHandler(webapp.RequestHandler):
     def post(self):
         rules = RuleList.getList('gfwlist')
         if rules == None: return
-        configs = { 'proxyString'   : "%s %s:%s" % (self.request.get('type'), self.request.get('ip'), self.request.get('port')),
+        configs = { 'proxyString'   : "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port')),
                     'defaultString' : "DIRECT" }
         pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
 
