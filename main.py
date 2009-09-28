@@ -59,8 +59,10 @@ class MainHandler(webapp.RequestHandler):
 class PacGenHandler(webapp.RequestHandler):
     def get(self, param):
         param = param.lower()
-        proxyString = commonProxy.get(param)
-        if proxyString == None:
+        proxy = commonProxy.get(param)
+        if proxy:
+            proxyString = proxy[1]
+        else:
             match = pacGenUrlRegxp.match(param)
             if match == None: return
             type, host, port = match.groups()
