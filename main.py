@@ -21,6 +21,7 @@ from google.appengine.ext.webapp import template
 import os, re
 import autoproxy2pac
 from datastore import RuleList
+import gfwtest
 
 commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
                 'tor'          : ('Tor', 'SOCKS 127.0.0.1:9050'),
@@ -82,7 +83,9 @@ class PacGenHandler(webapp.RequestHandler):
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/', MainHandler),
-                                          ('/pac/(.*)', PacGenHandler)],
+                                          ('/pac/(.*)', PacGenHandler),
+                                          ('/gfwtest.js', gfwtest.JsGenHandler),
+                                          ('/gfwtest', gfwtest.TestPageHandler)],
                                          debug=True)
     
     from google.appengine.ext.webapp.util import run_wsgi_app
