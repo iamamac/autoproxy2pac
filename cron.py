@@ -1,3 +1,4 @@
+from google.appengine.api import memcache
 from datastore import RuleList
 
 print 'Content-Type: text/plain'
@@ -11,3 +12,5 @@ for name, url in (('gfwlist', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk
     r.update()
     r.put()
     print('Update %s to %s' % (name, r.date))
+
+memcache.delete('gfwtest.js')

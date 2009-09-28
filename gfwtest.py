@@ -3,6 +3,7 @@
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+from google.appengine.api import memcache
 import os
 import autoproxy2pac
 from datastore import RuleList
@@ -44,8 +45,12 @@ def generateJs(rules):
 class JsGenHandler(webapp.RequestHandler):
     def get(self):
         rules = RuleList.getList('gfwlist')
-        if rules == None: return
-        js = generateJs(rules.toDict())
+        if rules is None: return
+        
+        js = memcache.get('gfwtest.js')
+        if js is None:
+            js = generateJs(rules.toDict())
+            memcache.add('gfwtest.js', js)
         
         self.response.headers['Content-Type'] = 'application/x-javascript'
         self.response.headers['Last-Modified'] = rules.date
