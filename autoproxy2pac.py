@@ -42,7 +42,7 @@ function FindProxyForURL(url, host) {
 %(ruleListCode)s
   %(rulesEnd)s
 
-  return %(defaultVar)s
+  return %(defaultVar)s;
 }
 '''
 
