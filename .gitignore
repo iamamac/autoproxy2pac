@@ -1,0 +1,4 @@
+# eclipse pydev files
+.project
+.pydevproject
+.settings/

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 '''
 A tool to automatically download autoproxy's GFW list and convert it to a PAC file
@@ -134,7 +135,7 @@ def generatePac(rules, configs, template=defaultPacTemplate):
 if __name__ == '__main__':
     pacFilepath = "fuckgfw.pac"
     ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
-    proxyString = "PROXY 166.111.139.13:9876"
+    proxyString = "PROXY 127.0.0.1:8118"
     defaultString = "DIRECT"
     
     print("Fetching GFW list from %s ..." % ruleListUrl)
