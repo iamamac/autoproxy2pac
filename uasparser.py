@@ -5,6 +5,8 @@ A python version of http://user-agent-string.info/download/UASparser
 By Hicro Kee (http://hicrokee.com)
 email: hicrokee AT gmail DOT com
 
+Google AppEngine version patched by Meng Xiangliang (https://twitter.com/mengxl)
+
 Usage:
 
 from uasparser import UASparser
@@ -35,13 +37,9 @@ for item in test:
 
 """
 
-import os
+import urllib2,re
 
-import urllib2,re,time
-try:
-    import cPickle as pickle
-except:
-    import pickle
+from google.appengine.api import memcache
 
 class UASException(Exception):
     pass
@@ -54,20 +52,7 @@ class UASparser:
     os_img_url = 'http://user-agent-string.info/pub/img/os/%s'
     ua_img_url = 'http://user-agent-string.info/pub/img/ua/%s'
 
-    cache_file_name = 'cache' 
-    cache_dir = ''
-    cache_data = None
     update_interval = 3600*24*10 # 10 days
-    
-    def __init__(self,cache_dir=None):
-        """
-        Create an UASparser to parse useragent strings.
-        cache_dir should be appointed or set to the path of program by default
-        """
-        self.cache_dir = cache_dir and cache_dir or os.path.abspath( os.path.dirname(__file__) )
-        if not os.access(self.cache_dir, os.W_OK):
-            raise UASException("Cache directory %s is not writable.")
-        self.cache_file_name = os.path.join( self.cache_dir, self.cache_file_name)
     
     def parse(self,useragent,entire_url=''):
         """
@@ -228,65 +213,29 @@ class UASparser:
         context = urllib2.urlopen(resq)
         return context.read()
     
-    def _checkCache(self):
-        """
-        check whether the cache available or not?
-        """
-        cache_file = self.cache_file_name
-        if not os.path.exists(cache_file):
-            return False
-        else:
-            mtime = os.path.getmtime(cache_file)
-            if mtime < time.time() - self.update_interval:
-                return False
-
-        return True
-    
     def updateData(self):
         """
         Check whether data is out-of-date
         """
-        ver_data = None
-        
-        #Check the latest version first
-        #pass if no need to update
         try:
-            ver_data = self._fetchURL(self.ver_url)
-            if os.path.exists(self.cache_file_name):
-                cache_file = open(self.cache_file_name,'rb')
-                data = pickle.load(cache_file)
-                if data['version'] == ver_data:
-                    return True
-        except:
-            raise UASException("Failed to get version of lastest data")
-        
-        try:
-            cache_file = open(self.cache_file_name,'wb')
             ini_file = self._fetchURL(self.ini_url)
             ini_data = self._parseIniFile(ini_file)
-            if ver_data:
-                ini_data['version'] = ver_data
         except:
             raise UASException("Failed to download cache data")
         
-        pickle.dump(ini_data, cache_file)
+        memcache.add('uasparser', ini_data, self.update_interval)
             
-        return True
+        return ini_data
         
     def loadData(self):
         """
         start to load cache data
         """
-        if not self._checkCache():
-            self.updateData()
-        else:
-            if self.cache_data: #no need to load
-                return self.cache_data
-                
-        self.cache_data = pickle.load(open(self.cache_file_name,'rb'))
+        data = memcache.get('uasparser')
+        if data is None: data = self.updateData()
         
-        return self.cache_data
+        return data
 
 #simple test
-#uas = UASparser()
+uas = UASparser()
 #print uas.parse('SonyEricssonK750i/R1L Browser/SEMC-Browser/4.2 Profile/MIDP-2.0 Configuration/CLDC-1.1','os_icon')
