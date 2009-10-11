@@ -10,7 +10,7 @@ from datastore import RuleList
 import gfwtest
 
 commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
-                'tor'          : ('Tor', 'SOCKS 127.0.0.1:9050'),
+                'tor'          : ('Tor', 'PROXY 127.0.0.1:8118; SOCKS 127.0.0.1:9050'),
                 'jap'          : ('JAP', 'PROXY 127.0.0.1:4001'),
                 'your-freedom' : ('Your Freedom', 'PROXY 127.0.0.1:8080'),
                 'wu-jie'       : ('无界', 'PROXY 127.0.0.1:9666'),
