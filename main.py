@@ -16,9 +16,14 @@ commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
                 'wu-jie'       : ('无界', 'PROXY 127.0.0.1:9666'),
                 'free-gate'    : ('自由门', 'PROXY 127.0.0.1:8580'),
                 'puff'         : ('Puff', 'PROXY 127.0.0.1:1984'),
+                'privoxy'      : ('Privoxy + SOCKS', 'PROXY 127.0.0.1:8118'),
               }
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
+
+privoxyConfCode = '''
+  if(host == "p.p" || dnsDomainIs(host, "config.privoxy.org")) return PROXY;
+'''
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
@@ -43,6 +48,7 @@ class MainHandler(webapp.RequestHandler):
         if rules == None: return
         configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
+        if self.request.get('name') == 'privoxy': configs['customCodePost'] = privoxyConfCode
         pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
 
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
@@ -74,6 +80,7 @@ class PacGenHandler(webapp.RequestHandler):
         if rules == None: return
         configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
+        if param == 'privoxy': configs['customCodePost'] = privoxyConfCode
         pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
         
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'

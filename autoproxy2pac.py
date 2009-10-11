@@ -38,11 +38,11 @@ defaultPacTemplate = '''/*
 function FindProxyForURL(url, host) {
   %(proxyVar)s = "%(proxyString)s";
   %(defaultVar)s = "%(defaultString)s";
-
+%(customCodePre)s
   %(rulesBegin)s
 %(ruleListCode)s
   %(rulesEnd)s
-
+%(customCodePost)s
   return %(defaultVar)s;
 }
 '''
@@ -127,7 +127,10 @@ def generatePac(rules, configs, template=defaultPacTemplate):
     data = { 'proxyVar'   : proxyVar,
              'defaultVar' : defaultVar,
              'rulesBegin' : rulesBegin,
-             'rulesEnd'   : rulesEnd }
+             'rulesEnd'   : rulesEnd,
+             'customCodePre'  : '',
+             'customCodePost' : '',
+           }
     data.update(configs)
     data.update(rules)
     return template % data
