@@ -28,7 +28,9 @@ privoxyConfCode = '''
 class MainHandler(webapp.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'index.html')
-        self.response.out.write(template.render(path, { 'commonProxy' : ((k, v[0]) for k, v in commonProxy.items()) }))
+        self.response.out.write(template.render(path,
+            { 'commonProxy' : ((k, v[0]) for k, v in commonProxy.items()),
+              'isIE'        : util.getBrowserFamily(self.request.headers) == 'IE' }))
     
     def post(self):
         proxy = commonProxy.get(self.request.get('name'))

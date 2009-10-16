@@ -39,7 +39,13 @@
         <input type="text" name="port" size="5"/>
       </div>
       <br/>
-      <button type="button" onclick="if(getPacUrl()) {alert('使用方法：将浏览器的“代理服务器自动配置脚本”指向下载到的文件'); submit();}">下载PAC文件</button>
+      <button type="button" onclick="if(getPacUrl()) {
+	  	{% if isIE %}
+		if(confirm('IE浏览器不支持本地PAC文件，请选择“取消”，并“获取在线版本”')) submit();
+		{% else %}
+		alert('使用方法：将浏览器的“代理服务器自动配置脚本”指向下载到的文件'); submit();
+		{% endif %}
+		}">下载PAC文件</button>
       或
       <button type="button" onclick="u=getPacUrl();if(u) prompt('使用方法：将浏览器的“代理服务器自动配置脚本”指向该地址',u)">获取在线版本</button>
     </form>
