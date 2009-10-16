@@ -45,7 +45,9 @@ def generateJs(rules):
 class JsGenHandler(webapp.RequestHandler):
     def get(self):
         rules = RuleList.getList('gfwlist')
-        if rules is None: return
+        if rules is None:
+            self.error(500)
+            return
         
         js = memcache.get('gfwtest.js')
         if js is None:

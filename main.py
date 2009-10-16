@@ -44,7 +44,9 @@ class MainHandler(webapp.RequestHandler):
             proxyString = proxyString.replace('SOCKS', 'SOCKS5')
         
         rules = RuleList.getList('gfwlist')
-        if rules == None: return
+        if rules is None:
+            self.error(500)
+            return
         configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
         if self.request.get('name') == 'privoxy': configs['customCodePost'] = privoxyConfCode
@@ -63,7 +65,9 @@ class PacGenHandler(webapp.RequestHandler):
             proxyString = proxy[1]
         else:
             match = pacGenUrlRegxp.match(param)
-            if match == None: return
+            if match is None:
+                self.error(404)
+                return
             type, host, port = match.groups()
             type = 'SOCKS' if type == 'socks' else 'PROXY'
             proxyString = "%s %s:%s" % (type, host, port)
@@ -73,7 +77,9 @@ class PacGenHandler(webapp.RequestHandler):
             proxyString = proxyString.replace('SOCKS', 'SOCKS5')
         
         rules = RuleList.getList('gfwlist')
-        if rules == None: return
+        if rules is None:
+            self.error(500)
+            return
         configs = { 'proxyString'   : proxyString,
                     'defaultString' : "DIRECT" }
         if param == 'privoxy': configs['customCodePost'] = privoxyConfCode
