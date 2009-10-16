@@ -5,7 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 import os, re
 import autoproxy2pac
-from uasparser import uas
+import util
 from datastore import RuleList
 import gfwtest
 
@@ -38,11 +38,8 @@ class MainHandler(webapp.RequestHandler):
             proxyString = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
         
         # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-        try:
-            if uas.parse(self.request.headers['User-Agent'])['ua_family'] == 'Chrome':
-                proxyString = proxyString.replace('SOCKS', 'SOCKS5')
-        except:
-            pass
+        if util.getBrowserFamily(self.request.headers) == 'Chrome':
+            proxyString = proxyString.replace('SOCKS', 'SOCKS5')
         
         rules = RuleList.getList('gfwlist')
         if rules == None: return
@@ -70,11 +67,8 @@ class PacGenHandler(webapp.RequestHandler):
             proxyString = "%s %s:%s" % (type, host, port)
         
         # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-        try:
-            if uas.parse(self.request.headers['User-Agent'])['ua_family'] == 'Chrome':
-                proxyString = proxyString.replace('SOCKS', 'SOCKS5')
-        except:
-            pass
+        if util.getBrowserFamily(self.request.headers) == 'Chrome':
+            proxyString = proxyString.replace('SOCKS', 'SOCKS5')
         
         rules = RuleList.getList('gfwlist')
         if rules == None: return
