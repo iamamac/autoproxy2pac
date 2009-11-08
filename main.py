@@ -36,7 +36,7 @@ class PacGenHandler(webapp.RequestHandler):
             return
         
         # Enable browser cache, see http://www.mnot.net/cache_docs/
-        if self.request.if_modified_since == rules.date:
+        if self.request.headers.get('If-Modified-Since') == rules.date:
             self.error(304)
             return
         self.response.headers['Cache-Control'] = 'public, max-age=600'
