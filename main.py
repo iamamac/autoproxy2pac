@@ -4,91 +4,48 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 import os, re
-import autoproxy2pac
 import util
 from datastore import RuleList
 import gfwtest
 
-commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
-                'tor'          : ('Tor', 'PROXY 127.0.0.1:8118; SOCKS 127.0.0.1:9050'),
-                'jap'          : ('JAP', 'PROXY 127.0.0.1:4001'),
-                'your-freedom' : ('Your Freedom', 'PROXY 127.0.0.1:8080'),
-                'wu-jie'       : ('无界', 'PROXY 127.0.0.1:9666'),
-                'free-gate'    : ('自由门', 'PROXY 127.0.0.1:8580'),
-                'puff'         : ('Puff', 'PROXY 127.0.0.1:1984'),
-                'privoxy'      : ('Privoxy + SOCKS', 'PROXY 127.0.0.1:8118'),
-              }
-
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
-
-privoxyConfCode = '''
-  if(host == "p.p" || dnsDomainIs(host, "config.privoxy.org")) return PROXY;
-'''
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
-            { 'commonProxy' : ((k, v[0]) for k, v in commonProxy.items()),
+            { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
               'isIE'        : util.getBrowserFamily(self.request.headers) == 'IE' }))
     
     def post(self):
-        proxy = commonProxy.get(self.request.get('name'))
-        if proxy:
-            proxyString = proxy[1]
-        else:
-            proxyString = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
+        proxy = self.request.get('name')
+        if proxy not in util.commonProxy:
+            proxy = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
         
-        # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-        if util.getBrowserFamily(self.request.headers) == 'Chrome':
-            proxyString = proxyString.replace('SOCKS', 'SOCKS5')
-        
+        self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
+        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
+        util.generatePacResponse(self, proxy)
+
+class PacGenHandler(webapp.RequestHandler):
+    def get(self, param):
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
             return
-        configs = { 'proxyString'   : proxyString,
-                    'defaultString' : "DIRECT" }
-        if self.request.get('name') == 'privoxy': configs['customCodePost'] = privoxyConfCode
-        pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
-
-        self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
-        self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
-        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
-        self.response.out.write(pac)
-
-class PacGenHandler(webapp.RequestHandler):
-    def get(self, param):
-        param = param.lower()
-        proxy = commonProxy.get(param)
-        if proxy:
-            proxyString = proxy[1]
-        else:
+        
+        proxy = param = param.lower()
+        if proxy not in util.commonProxy:
             match = pacGenUrlRegxp.match(param)
             if match is None:
                 self.error(404)
                 return
             type, host, port = match.groups()
             type = 'SOCKS' if type == 'socks' else 'PROXY'
-            proxyString = "%s %s:%s" % (type, host, port)
+            proxy = "%s %s:%s" % (type, host, port)
         
-        # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-        if util.getBrowserFamily(self.request.headers) == 'Chrome':
-            proxyString = proxyString.replace('SOCKS', 'SOCKS5')
-        
-        rules = RuleList.getList('gfwlist')
-        if rules is None:
-            self.error(500)
-            return
-        configs = { 'proxyString'   : proxyString,
-                    'defaultString' : "DIRECT" }
-        if param == 'privoxy': configs['customCodePost'] = privoxyConfCode
-        pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
-        
-        self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
         self.response.headers['Last-Modified'] = rules.date
         self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
-        self.response.out.write(pac)
+        util.generatePacResponse(self, proxy, rules)
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/', MainHandler),
