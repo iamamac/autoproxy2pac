@@ -49,16 +49,24 @@ class JsGenHandler(webapp.RequestHandler):
             self.error(500)
             return
         
+        # Enable browser cache, see http://www.mnot.net/cache_docs/
+        if self.request.if_modified_since == rules.date:
+            self.error(304)
+            return
+        self.response.headers['Cache-Control'] = 'public, max-age=600'
+        self.response.headers['Last-Modified'] = rules.date
+        
         js = memcache.get('gfwtest.js')
         if js is None:
             js = generateJs(rules.toDict())
             memcache.add('gfwtest.js', js)
         
         self.response.headers['Content-Type'] = 'application/x-javascript'
-        self.response.headers['Last-Modified'] = rules.date
         self.response.out.write(js)
 
 class TestPageHandler(webapp.RequestHandler):
     def get(self):
+        self.response.headers['Cache-Control'] = 'public, max-age=3600'
+        
         path = os.path.join(os.path.dirname(__file__), 'gfwtest.html')
         self.response.out.write(template.render(path, None))

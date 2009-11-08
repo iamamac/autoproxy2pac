@@ -12,6 +12,8 @@ pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
+        self.response.headers['Cache-Control'] = 'public, max-age=3600'
+        
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
             { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
@@ -33,6 +35,13 @@ class PacGenHandler(webapp.RequestHandler):
             self.error(500)
             return
         
+        # Enable browser cache, see http://www.mnot.net/cache_docs/
+        if self.request.if_modified_since == rules.date:
+            self.error(304)
+            return
+        self.response.headers['Cache-Control'] = 'public, max-age=600'
+        self.response.headers['Last-Modified'] = rules.date
+        
         proxy = param = param.lower()
         if proxy not in util.commonProxy:
             match = pacGenUrlRegxp.match(param)
@@ -43,8 +52,6 @@ class PacGenHandler(webapp.RequestHandler):
             type = 'SOCKS' if type == 'socks' else 'PROXY'
             proxy = "%s %s:%s" % (type, host, port)
         
-        self.response.headers['Last-Modified'] = rules.date
-        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
         util.generatePacResponse(self, proxy, rules)
 
 if __name__ == '__main__':
