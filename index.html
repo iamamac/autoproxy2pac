@@ -6,12 +6,12 @@
       function getPacUrl() {
         for(var i=0; i<document.form.name.length-1; i++)
           if(document.form.name[i].checked)
-            return "https://autoproxy2pac.appspot.com/pac/"+document.form.name[i].value;
+            return "{{host}}/pac/"+document.form.name[i].value;
         type = document.form.type.value.toLowerCase();
         host = document.form.host.value;
         port = document.form.port.value;
         if(host && port)
-          return "https://autoproxy2pac.appspot.com/pac/"+type+"/"+host+"/"+port;
+          return "{{host}}/pac/"+type+"/"+host+"/"+port;
       }
     </script>
   </head>
