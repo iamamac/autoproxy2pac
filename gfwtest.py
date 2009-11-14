@@ -70,3 +70,10 @@ class TestPageHandler(webapp.RequestHandler):
         
         path = os.path.join(os.path.dirname(__file__), 'gfwtest.html')
         self.response.out.write(template.render(path, None))
+
+if __name__ == '__main__':
+    application = webapp.WSGIApplication([('/gfwtest.js', JsGenHandler),
+                                          ('/gfwtest', TestPageHandler)])
+    
+    from google.appengine.ext.webapp.util import run_wsgi_app
+    run_wsgi_app(application)

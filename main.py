@@ -6,7 +6,6 @@ from google.appengine.ext.webapp import template
 import os, re
 import util
 from datastore import RuleList
-import gfwtest
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -16,7 +15,7 @@ class MainHandler(webapp.RequestHandler):
         
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
-            { 'host'        : self.request.host_url,
+            { 'host'        : 'http://' + self.request.host,
               'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
               'isIE'        : util.getBrowserFamily(self.request.headers) == 'IE' }))
     
@@ -57,10 +56,7 @@ class PacGenHandler(webapp.RequestHandler):
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/', MainHandler),
-                                          ('/pac/(.*)', PacGenHandler),
-                                          ('/gfwtest.js', gfwtest.JsGenHandler),
-                                          ('/gfwtest', gfwtest.TestPageHandler)],
-                                         debug=True)
+                                          ('/pac/(.*)', PacGenHandler)])
     
     from google.appengine.ext.webapp.util import run_wsgi_app
     run_wsgi_app(application)

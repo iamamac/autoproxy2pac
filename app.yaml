@@ -4,12 +4,14 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /pac/.*
+  script: main.py
+- url: /gfwtest.*
+  script: gfwtest.py
 - url: /static
   static_dir: static
-  secure: always
 - url: /\.cron
   script: cron.py
   login: admin
 - url: .*
   script: main.py
-  secure: always
