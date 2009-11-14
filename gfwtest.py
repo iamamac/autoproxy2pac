@@ -10,7 +10,7 @@ from datastore import RuleList
 
 jsFileTemplate = '''/*
  * Provide a javascript function to determine whether a URL is blocked in mainland China
- * You can get this file at https://autoproxy2pac.appspot.com/gfwtest.js
+ * You can get this file at http://autoproxy2pac.appspot.com/gfwtest.js
  *
  * Usage: isBlockedByGFW(url), returns true if the URL is blocked
  *
