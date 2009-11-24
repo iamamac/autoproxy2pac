@@ -1,6 +1,21 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style>
+	  .changelog-time {
+	  	font-size:12px;
+		font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+		font-weight:bold;
+	  }
+	  .changelog-modify {
+	  	font-size:11px;
+		font-family:"Courier New", Courier, monospace;
+		border-left-style:solid;
+		border-left-color:#00AA00;
+		padding-left:5px;
+		margin-bottom:8px;
+	  }
+	</style>
     <title>AutoProxy2PAC - 全平台智能代理</title>
     <script type="text/javascript">
       function getPacUrl() {
@@ -13,11 +28,37 @@
         if(host && port)
           return "{{host}}/pac/"+type+"/"+host+"/"+port;
       }
+	  
+	  function loadChangelog() {
+	  	var req = new XMLHttpRequest();
+	  	req.open("GET", "/changelog/gfwlist.json?num=5", false);
+	  	req.send(null);
+	  	logs = eval(req.responseText);
+	  	var changelogDiv = document.getElementById("changelog");
+	  	changelogDiv.innerHTML = "";
+		for(var i in logs) {
+		  var log = logs[i];
+		  var entry = document.createElement("div");
+		  var time = document.createElement("div");
+		  time.className = "changelog-time";
+		  time.innerHTML = log.time;
+		  entry.appendChild(time);
+		  var modify = document.createElement("div");
+		  modify.className = "changelog-modify";
+		  for(var j in log.add) modify.innerHTML += "+ " + log.add[j] + "<br/>";
+		  for(var j in log.remove) modify.innerHTML += "- " + log.remove[j] + "<br/>";
+		  entry.appendChild(modify);
+		  changelogDiv.appendChild(entry);
+		}
+	  }
     </script>
   </head>
   <body>
-    <div style="float:right">
+    <div style="float:right;max-width:400px">
     <a href="gfwtest">哪些网站必须通过代理才能访问？</a>
+	<h4>gfwlist 近期更新内容</h4>
+	<div id="changelog"></div>
+	<script>loadChangelog();</script>
     </div>
     <div>
     <h1>AutoProxy2PAC</h1>
