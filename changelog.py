@@ -22,18 +22,22 @@ class ChangelogJsonHandler(webapp.RequestHandler):
         self.response.headers['Cache-Control'] = 'public, max-age=600'
         self.response.headers['Last-Modified'] = rules.date
         
-        JSON = memcache.get('changelog/%s.json' % name)
-        if JSON is None:
-            logs = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(
-                                 limit=int(self.request.get('num', 50)),
-                                 offset=int(self.request.get('start', 0)))
-            JSON = json.dumps([{'time'   : (l.date + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M"),
-                                'add'    : l.add,
-                                'remove' : l.remove} for l in logs])
-            memcache.add('changelog/%s.json' % name, JSON)
+        start = int(self.request.get('start', 0))
+        fetchNum = start + int(self.request.get('num', 50))
+        if fetchNum > 1000:
+            self.error(412)
+            return
+        
+        changes = memcache.get('changelog/%s' % name)
+        if changes is None or len(changes) < fetchNum:
+            logs = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(fetchNum)
+            changes = [{'time'   : (l.date + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M"),
+                        'add'    : l.add,
+                        'remove' : l.remove} for l in logs]
+            memcache.add('changelog/%s' % name, changes)
         
         self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(JSON)
+        self.response.out.write(json.dumps(changes[start:fetchNum]))
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/changelog/(.*)\.json', ChangelogJsonHandler)])
