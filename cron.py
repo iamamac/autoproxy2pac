@@ -13,3 +13,4 @@ for name, url in (('gfwlist', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk
     if r.update():
         logging.info('%s updated to %s' , name, r.date)
         if name == 'gfwlist': memcache.delete('gfwtest.js')
+        memcache.delete('changelog/%s.json' % name)
