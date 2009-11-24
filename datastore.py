@@ -20,7 +20,7 @@ class RuleList(db.Model):
         self.put()
         
         if rawOld:
-            ChangeLog(self, rawOld, self.raw).put()
+            ChangeLog.new(self, rawOld, self.raw).put()
         
         return True
     
@@ -44,8 +44,9 @@ class ChangeLog(db.Model):
     add = db.StringListProperty()
     remove = db.StringListProperty()
     
-    def __init__(self, ruleList, old, new):
-        db.Model.__init__(self, ruleList=ruleList)
+    @classmethod
+    def new(cls, ruleList, old, new):
+        ret = ChangeLog(ruleList=ruleList)
         
         from difflib import SequenceMatcher
         toSeq = lambda raw: [l for l in raw.splitlines()[1:] if l and not l.startswith('!')]
@@ -53,5 +54,7 @@ class ChangeLog(db.Model):
         new = toSeq(new)
         for tag, i1, i2, j1, j2 in SequenceMatcher(a=old, b=new).get_opcodes():
             if tag != 'equal':
-                self.remove.extend(old[i1:i2])
-                self.add.extend(new[j1:j2])
+                ret.remove.extend(old[i1:i2])
+                ret.add.extend(new[j1:j2])
+        
+        return ret
