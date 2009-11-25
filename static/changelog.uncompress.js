@@ -24,18 +24,6 @@ function loadChangelog(element, name, num, start){
         time.innerHTML = log.time;
         entry.appendChild(time);
         
-        for (var j in log.add) {
-            var item = document.createElement("div");
-            item.className = "item-add";
-            var bullet = document.createElement("div");
-            bullet.className = "bullet";
-            var content = document.createElement("div");
-            content.className = "content";
-            content.innerHTML = log.add[j];
-            item.appendChild(bullet);
-            item.appendChild(content);
-            entry.appendChild(item);
-        }
         for (var j in log.remove) {
             var item = document.createElement("div");
             item.className = "item-remove";
@@ -44,6 +32,18 @@ function loadChangelog(element, name, num, start){
             var content = document.createElement("div");
             content.className = "content";
             content.innerHTML = log.remove[j];
+            item.appendChild(bullet);
+            item.appendChild(content);
+            entry.appendChild(item);
+        }
+        for (var j in log.add) {
+            var item = document.createElement("div");
+            item.className = "item-add";
+            var bullet = document.createElement("div");
+            bullet.className = "bullet";
+            var content = document.createElement("div");
+            content.className = "content";
+            content.innerHTML = log.add[j];
             item.appendChild(bullet);
             item.appendChild(content);
             entry.appendChild(item);
