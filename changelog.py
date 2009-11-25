@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
+import os
 import simplejson as json
 from datastore import RuleList, ChangeLog
 from datetime import timedelta
@@ -39,8 +41,19 @@ class ChangelogJsonHandler(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(changes[start:fetchNum]))
 
+class ChangelogHtmlHandler(webapp.RequestHandler):
+    def get(self, name):
+        rules = RuleList.getList(name.lower())
+        if rules is None:
+            self.error(404)
+            return
+        
+        path = os.path.join(os.path.dirname(__file__), 'changelog.html')
+        self.response.out.write(template.render(path, {'name':name}))
+
 if __name__ == '__main__':
-    application = webapp.WSGIApplication([('/changelog/(.*)\.json', ChangelogJsonHandler)])
+    application = webapp.WSGIApplication([('/changelog/(.*)\.json', ChangelogJsonHandler),
+                                          ('/changelog/(.*)', ChangelogHtmlHandler)])
     
     from google.appengine.ext.webapp.util import run_wsgi_app
     run_wsgi_app(application)
