@@ -15,9 +15,7 @@ class MainHandler(webapp.RequestHandler):
         
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
-            { 'host'        : 'http://' + self.request.host,
-              'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
-              'isIE'        : util.getBrowserFamily(self.request.headers) == 'IE' }))
+            { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()) }))
     
     def post(self):
         proxy = self.request.get('name')
@@ -27,6 +25,17 @@ class MainHandler(webapp.RequestHandler):
         self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
         self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
         util.generatePacResponse(self, proxy)
+
+class UsageHandler(webapp.RequestHandler):
+    def get(self):
+        url = self.request.get('u')
+        if url: url = 'http://%s/pac/%s' % (self.request.host, url)
+        self.response.headers['Cache-Control'] = 'public, max-age=3600'
+        
+        path = os.path.join(os.path.dirname(__file__), 'usage.html')
+        self.response.out.write(template.render(path,
+            { 'url'     : url,
+              'browser' : util.getBrowserFamily() }))
 
 class PacGenHandler(webapp.RequestHandler):
     def get(self, param):
@@ -56,6 +65,7 @@ class PacGenHandler(webapp.RequestHandler):
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/', MainHandler),
+                                          ('/usage', UsageHandler),
                                           ('/pac/(.*)', PacGenHandler)])
     
     from google.appengine.ext.webapp.util import run_wsgi_app

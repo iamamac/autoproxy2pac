@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import autoproxy2pac
 from datastore import RuleList
 
@@ -16,8 +17,8 @@ privoxyConfCode = '''
   if(host == "p.p" || dnsDomainIs(host, "config.privoxy.org")) return PROXY;
 '''
 
-def getBrowserFamily(headers):
-    ua = headers['User-Agent']
+def getBrowserFamily():
+    ua = os.environ['HTTP_USER_AGENT']
     
     if 'MSIE' in ua:
         return 'IE'
@@ -40,7 +41,7 @@ def generatePacResponse(handler, proxy, rules=None):
     proxyString = (commonProxy.get(proxy) or (None, proxy))[1]
     
     # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-    if getBrowserFamily(handler.request.headers) == 'Chrome':
+    if getBrowserFamily() == 'Chrome':
         proxyString = proxyString.replace('SOCKS', 'SOCKS5')
     
     configs = { 'proxyString'   : proxyString,
