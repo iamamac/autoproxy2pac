@@ -85,7 +85,7 @@ class ChangelogHtmlHandler(webapp.RequestHandler):
             return
         
         path = os.path.join(os.path.dirname(__file__), 'changelog.html')
-        self.response.out.write(template.render(path, {'name':name}))
+        self.response.out.write(template.render(path, {'name':name, 'rss':self.request.relative_url('%s.rss' % name)}))
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/changelog/(.*)\.json', ChangelogJsonHandler),
