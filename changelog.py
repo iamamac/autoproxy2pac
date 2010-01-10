@@ -46,7 +46,7 @@ class ChangelogRssHandler(webapp.RequestHandler):
             self.error(404)
             return
         
-        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
+        if util.isCachedByBrowser(self, 0, rules.date): return
         
         start = int(self.request.get('start', 0))
         fetchNum = start + int(self.request.get('num', 20))
@@ -85,7 +85,7 @@ class ChangelogHtmlHandler(webapp.RequestHandler):
             return
         
         path = os.path.join(os.path.dirname(__file__), 'changelog.html')
-        self.response.out.write(template.render(path, {'name':name, 'rss':self.request.relative_url('%s.rss' % name)}))
+        self.response.out.write(template.render(path, {'name':name, 'rss':'http://feeds.feedburner.com/%s' % name}))
 
 if __name__ == '__main__':
     application = webapp.WSGIApplication([('/changelog/(.*)\.json', ChangelogJsonHandler),
