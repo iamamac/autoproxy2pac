@@ -5,9 +5,10 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 import os
-import simplejson as json
-from datastore import RuleList, ChangeLog
 from datetime import timedelta
+import simplejson as json
+import util
+from datastore import RuleList, ChangeLog
 
 class ChangelogJsonHandler(webapp.RequestHandler):
     def get(self, name):
@@ -17,12 +18,7 @@ class ChangelogJsonHandler(webapp.RequestHandler):
             self.error(404)
             return
         
-        # Enable browser cache, see http://www.mnot.net/cache_docs/
-        if self.request.headers.get('If-Modified-Since') == rules.date:
-            self.error(304)
-            return
-        self.response.headers['Cache-Control'] = 'public, max-age=600'
-        self.response.headers['Last-Modified'] = rules.date
+        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
         
         start = int(self.request.get('start', 0))
         fetchNum = start + int(self.request.get('num', 50))

@@ -11,7 +11,7 @@ pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        self.response.headers['Cache-Control'] = 'public, max-age=3600'
+        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
         
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
@@ -28,9 +28,10 @@ class MainHandler(webapp.RequestHandler):
 
 class UsageHandler(webapp.RequestHandler):
     def get(self):
+        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
+        
         url = self.request.get('u')
         if url: url = 'http://%s/pac/%s' % (self.request.host, url)
-        self.response.headers['Cache-Control'] = 'public, max-age=3600'
         
         path = os.path.join(os.path.dirname(__file__), 'usage.html')
         self.response.out.write(template.render(path,
@@ -44,12 +45,7 @@ class PacGenHandler(webapp.RequestHandler):
             self.error(500)
             return
         
-        # Enable browser cache, see http://www.mnot.net/cache_docs/
-        if self.request.headers.get('If-Modified-Since') == rules.date:
-            self.error(304)
-            return
-        self.response.headers['Cache-Control'] = 'public, max-age=600'
-        self.response.headers['Last-Modified'] = rules.date
+        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
         
         proxy = param = param.lower()
         if proxy not in util.commonProxy:

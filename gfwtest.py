@@ -5,6 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 import os
+import util
 import autoproxy2pac
 from datastore import RuleList
 
@@ -49,12 +50,7 @@ class JsGenHandler(webapp.RequestHandler):
             self.error(500)
             return
         
-        # Enable browser cache, see http://www.mnot.net/cache_docs/
-        if self.request.headers.get('If-Modified-Since') == rules.date:
-            self.error(304)
-            return
-        self.response.headers['Cache-Control'] = 'public, max-age=600'
-        self.response.headers['Last-Modified'] = rules.date
+        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
         
         js = memcache.get('gfwtest.js')
         if js is None:
@@ -66,7 +62,7 @@ class JsGenHandler(webapp.RequestHandler):
 
 class TestPageHandler(webapp.RequestHandler):
     def get(self):
-        self.response.headers['Cache-Control'] = 'public, max-age=3600'
+        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
         
         path = os.path.join(os.path.dirname(__file__), 'gfwtest.html')
         self.response.out.write(template.render(path, None))
