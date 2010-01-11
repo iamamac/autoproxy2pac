@@ -4,6 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /(robots.txt|favicon.ico)
+  static_files: static/\1
+  upload: static/(robots.txt|favicon.ico)
 - url: /pac/.*
   script: main.py
 - url: /gfwtest.*
