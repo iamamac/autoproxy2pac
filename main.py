@@ -15,7 +15,8 @@ class MainHandler(webapp.RequestHandler):
         
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path,
-            { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()) }))
+            { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
+              'gfwlistRss'  : self.request.relative_url('/changelog/gfwlist.rss') }))
     
     def post(self):
         proxy = self.request.get('name')
