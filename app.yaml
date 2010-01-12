@@ -20,5 +20,8 @@ handlers:
 - url: /\.cron
   script: cron.py
   login: admin
+- url: /admin/.*
+  script: $PYTHON_LIB/google/appengine/ext/admin
+  login: admin
 - url: .*
   script: main.py
