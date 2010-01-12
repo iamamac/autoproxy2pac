@@ -21,8 +21,6 @@ class RuleList(db.Model):
         
         if rawOld:
             ChangeLog.new(self, rawOld, self.raw).put()
-            import util
-            util.notifyRssUpdate('feeds.feedburner.com/%s' % self.name)
         
         return True
     
