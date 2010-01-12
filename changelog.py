@@ -46,6 +46,13 @@ class ChangelogRssHandler(webapp.RequestHandler):
             self.error(404)
             return
         
+        # Conditional redirect to FeedBurner
+        # @see: http://www.google.com/support/feedburner/bin/answer.py?hl=en&answer=78464
+        if(self.request.get('raw', None) is None and        # http://host/path/name.rss?raw
+           'FeedBurner' not in self.request.user_agent):    # FeedBurner fetcher
+            self.redirect('http://feeds.feedburner.com/%s' % name, permanent=False)
+            return
+        
         if util.isCachedByBrowser(self, 0, rules.date): return
         
         start = int(self.request.get('start', 0))
