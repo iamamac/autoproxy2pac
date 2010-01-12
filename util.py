@@ -43,8 +43,8 @@ def isCachedByBrowser(handler, age=0, lastModified=None, etag=None):
         handler.error(304)
         return True
     handler.response.headers['Cache-Control'] = age > 0 and 'public, max-age=%d' % age or 'public, no-cache'
-    handler.response.headers['Last-Modified'] = lastModified
-    handler.response.headers['ETag'] = etag
+    if lastModified: handler.response.headers['Last-Modified'] = lastModified
+    if etag: handler.response.headers['ETag'] = etag
     return False
 
 def generatePacResponse(handler, proxy, rules=None):
