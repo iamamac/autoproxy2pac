@@ -16,7 +16,7 @@ handlers:
 - url: /static
   static_dir: static
 - url: /facebox
-  static_dir: facebox
+  static_dir: static/facebox
 - url: /\.cron
   script: cron.py
   login: admin
