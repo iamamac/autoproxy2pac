@@ -20,7 +20,8 @@ class RuleList(db.Model):
         self.put()
         
         if rawOld:
-            ChangeLog.new(self, rawOld, self.raw).put()
+            diff = ChangeLog.new(self, rawOld, self.raw)
+            if diff: diff.put()
         
         return True
     
@@ -57,4 +58,12 @@ class ChangeLog(db.Model):
                 ret.remove.extend(old[i1:i2])
                 ret.add.extend(new[j1:j2])
         
-        return ret
+        # Ignore unmodified rules (just moved to another place)
+        for line in set(ret.add).intersection(set(ret.remove)):
+            ret.add.remove(line)
+            ret.remove.remove(line)
+        
+        if ret.add or ret.remove:
+            return ret
+        else:
+            return None
