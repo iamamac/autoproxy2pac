@@ -1,11 +1,21 @@
-{% for item in remove %}
+{% for item in unblock %}
 {% if forloop.first %}<h3>解封网址</h3><ul style="list-style-type:none;padding-left:0.5em;border-left-style:solid;border-left-color:#00CC00;">{% endif %}
-<li>{{ item }}</li>
+<li>{{ item.sample_url|urlize }}
+({% for r in item.rules %}<code>{{r}}</code>{% if not forloop.last %}, {% endif %}{% endfor %})</li>
 {% if forloop.last %}</ul>{% endif %}
 {% endfor %}
 
-{% for item in add %}
+{% for item in block %}
 {% if forloop.first %}<h3>封锁网址</h3><ul style="list-style-type:none;padding-left:0.5em;border-left-style:solid;border-left-color:#CC0000;">{% endif %}
-<li>{{ item }}</li>
+<li>{{ item.sample_url|urlize }}
+({% for r in item.rules %}<code>{{r}}</code>{% if not forloop.last %}, {% endif %}{% endfor %})</li>
+{% if forloop.last %}</ul>{% endif %}
+{% endfor %}
+
+{% for item in rule_adjust %}
+{% if forloop.first %}<h3>规则调整</h3><ul style="list-style-type:none;padding-left:0.5em;">{% endif %}
+<li>{{ item.sample_url|urlize }}
+({% for r in item.from %}<code>{{r}}</code>{% if not forloop.last %}, {% endif %}{% endfor %} &rarr;
+{% for r in item.to %}<code>{{r}}</code>{% if not forloop.last %}, {% endif %}{% endfor %})</li>
 {% if forloop.last %}</ul>{% endif %}
 {% endfor %}

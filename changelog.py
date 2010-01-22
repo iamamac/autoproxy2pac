@@ -11,6 +11,41 @@ from PyRSS2Gen import RSS2, RSSItem
 import util
 from datastore import RuleList, ChangeLog
 
+def getSampleUrlFromRule(rule):
+    from urllib import unquote
+    rule = unquote(rule.encode()).decode('utf-8', 'ignore')
+    if rule.startswith('||'): return 'http://' + rule[2:]
+    if rule.startswith('.'): return 'http://' + rule[1:]
+    if rule.startswith('|'): return rule[1:]
+    rule = rule.replace('wikipedia.org*', 'wikipedia.org/wiki/')
+    if not rule.startswith('http'): return 'http://' + rule
+    return rule
+
+def generateLogFromDiff(diff):
+    from collections import defaultdict
+    urlStatus = defaultdict(lambda:{True:[], False:[]})
+    log = {'timestamp':diff.date, 'block':[], 'unblock':[], 'rule_adjust':[]}
+    
+    for type in ('add', 'remove'):
+        blocked = type == 'add'
+        for rule in getattr(diff, type):
+            if rule.startswith('@@'):
+                url = getSampleUrlFromRule(rule[2:])
+                log['rule_adjust'].append({'from':(), 'to':(rule,), 'sample_url':url})
+            else:
+                url = getSampleUrlFromRule(rule)
+                urlStatus[url][blocked].append(rule)
+    
+    for url, status in urlStatus.items():
+        if status[True] and not status[False]:
+            log['block'].append({'rules':status[True], 'sample_url':url})
+        elif not status[True] and status[False]:
+            log['unblock'].append({'rules':status[False], 'sample_url':url})
+        else:
+            log['rule_adjust'].append({'from':status[False], 'to':status[True], 'sample_url':url})
+    
+    return log
+
 class ChangelogJsonHandler(webapp.RequestHandler):
     def get(self, name):
         name = name.lower()
@@ -62,10 +97,11 @@ class ChangelogRssHandler(webapp.RequestHandler):
             self.error(412)
             return
         
-        logs = memcache.get('changelog/%s' % name)
+        logs = memcache.get('changelog/%s.log' % name)
         if logs is None or len(logs) < fetchNum:
-            logs = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(fetchNum)
-            memcache.add('changelog/%s' % name, logs)
+            diff = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(fetchNum)
+            logs = map(generateLogFromDiff, diff)
+            memcache.add('changelog/%s.log' % name, logs)
         
         self.response.headers['Content-Type'] = 'application/rss+xml'
         
@@ -76,10 +112,10 @@ class ChangelogRssHandler(webapp.RequestHandler):
                    language="zh",
                    lastBuildDate=rules.date,
                    
-                   items=(RSSItem(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (i.date.month, i.date.day, name, len(i.add), len(i.remove)),
+                   items=(RSSItem(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (i['timestamp'].month, i['timestamp'].day, name, len(i['block']), len(i['unblock'])),
                                   author="gfwlist",
-                                  description=template.render(path, {'add':i.add, 'remove':i.remove}),
-                                  pubDate=i.date.strftime("%a, %d %b %Y %H:%M:%S GMT")) for i in logs))
+                                  description=template.render(path, i),
+                                  pubDate=i['timestamp'].strftime("%a, %d %b %Y %H:%M:%S GMT")) for i in logs))
         
         rss.write_xml(self.response.out, "utf-8")
 
