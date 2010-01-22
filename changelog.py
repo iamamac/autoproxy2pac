@@ -115,7 +115,7 @@ class ChangelogRssHandler(webapp.RequestHandler):
                    items=(RSSItem(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (i['timestamp'].month, i['timestamp'].day, name, len(i['block']), len(i['unblock'])),
                                   author="gfwlist",
                                   description=template.render(path, i),
-                                  pubDate=i['timestamp'].strftime("%a, %d %b %Y %H:%M:%S +0800")) for i in logs))
+                                  pubDate=i['timestamp'].strftime("%a, %d %b %Y %H:%M:%S GMT")) for i in logs))
         
         rss.write_xml(self.response.out, "utf-8")
 
