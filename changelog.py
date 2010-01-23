@@ -6,7 +6,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 import os
 from datetime import timedelta
-import simplejson as json
+import django.utils.simplejson as json
 from PyRSS2Gen import RSS2, RSSItem
 import util
 from datastore import RuleList, ChangeLog
