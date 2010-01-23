@@ -7,7 +7,7 @@ from google.appengine.api import memcache
 import os
 from datetime import timedelta
 import django.utils.simplejson as json
-from PyRSS2Gen import RSS2, RSSItem
+from django.utils.feedgenerator import DefaultFeed as Feed
 import util
 from datastore import RuleList, ChangeLog
 
@@ -103,21 +103,22 @@ class ChangelogRssHandler(webapp.RequestHandler):
             logs = map(generateLogFromDiff, diff)
             memcache.add('changelog/%s.log' % name, logs)
         
-        self.response.headers['Content-Type'] = 'application/rss+xml'
+        self.response.headers['Content-Type'] = Feed.mime_type
         
         path = os.path.join(os.path.dirname(__file__), 'changelogRssItem.html')
-        rss = RSS2(title="%s 更新记录" % name,
-                   link=self.request.relative_url(name),
-                   description="beta",
-                   language="zh",
-                   lastBuildDate=rules.date,
-                   
-                   items=(RSSItem(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (i['timestamp'].month, i['timestamp'].day, name, len(i['block']), len(i['unblock'])),
-                                  author="gfwlist",
-                                  description=template.render(path, i),
-                                  pubDate=i['timestamp'].strftime("%a, %d %b %Y %H:%M:%S GMT")) for i in logs))
+        f = Feed(title="%s 更新记录" % name,
+                 link=self.request.relative_url(name),
+                 description="beta",
+                 language="zh")
         
-        rss.write_xml(self.response.out, "utf-8")
+        for item in logs:
+            f.add_item(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (item['timestamp'].month, item['timestamp'].day, name, len(item['block']), len(item['unblock'])),
+                       link='',
+                       description=template.render(path, item),
+                       author_name="gfwlist",
+                       pubdate=item['timestamp'])
+        
+        f.write(self.response.out, 'utf-8')
 
 class ChangelogHtmlHandler(webapp.RequestHandler):
     def get(self, name):
