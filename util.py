@@ -12,6 +12,7 @@ commonProxy = { 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
                 'free-gate'    : ('自由门', 'PROXY 127.0.0.1:8580'),
                 'puff'         : ('Puff', 'PROXY 127.0.0.1:1984'),
                 'privoxy'      : ('Privoxy + SOCKS', 'PROXY 127.0.0.1:8118'),
+                'ssh-d'        : ('ssh -D / MyEnTunnel', 'SOCKS 127.0.0.1:7070'),
               }
 
 privoxyConfCode = '''
