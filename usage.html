@@ -1,9 +1,0 @@
-{% if url %}
-使用方法：将浏览器的“代理服务器自动配置脚本”设置为 {{url}}
-{% else %}
-  {% ifequal browser "IE" %}
-  使用方法：Internet选项 - 连接 - 局域网设置，勾选“使用自动配置脚本”，“地址”设置为 file://c:/autoproxy.pac （请根据下载位置进行调整）
-  {% else %}
-  使用方法：将浏览器的“代理服务器自动配置脚本”指向下载到的文件
-  {% endifequal %}
-{% endif %}

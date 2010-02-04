@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /pac/
-Disallow: /changelog/*.json$
-Disallow: /gfwtest.js
-Allow: /

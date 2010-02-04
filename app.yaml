@@ -1,30 +1,17 @@
-application: autoproxy2pac
-version: 2
+application: autoproxy2pac-alfa
+version: 1
 runtime: python
 api_version: 1
 
 handlers:
-- url: /(robots.txt|favicon.ico)
-  static_files: static/\1
-  upload: static/(robots.txt|favicon.ico)
-- url: /pac/.*
-  script: main.py
-- url: /gfwtest.*
-  script: gfwtest.py
-- url: /changelog/.*
-  script: changelog.py
-- url: /static
-  static_dir: static
-- url: /facebox
-  static_dir: static/facebox
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
 - url: /\.cron
   script: cron.py
   login: admin
-- url: /admin/.*
+- url: /admin.*
   script: $PYTHON_LIB/google/appengine/ext/admin
-  login: admin
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
   login: admin
 - url: .*
   script: main.py
