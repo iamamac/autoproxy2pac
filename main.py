@@ -43,6 +43,11 @@ class UsageHandler(webapp.RequestHandler):
 
 class PacGenHandler(webapp.RequestHandler):
     def get(self, param):
+        # Redirect to usage page for visits from links (obviously not a browser PAC fetcher)
+        if 'Referer' in self.request.headers:
+            self.redirect("/usage?u=" + param, permanent=False)
+            return
+
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
