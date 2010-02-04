@@ -4,6 +4,8 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 import os, re
+import random
+import urlparse
 import util
 from datastore import RuleList
 
@@ -48,6 +50,12 @@ class PacGenHandler(webapp.RequestHandler):
         
         if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
         
+        # Load balance
+        mirror = random.choice((None, "http://autoproxy2pac-alfa.appspot.com"))
+        if mirror:
+            self.redirect(urlparse.urljoin(mirror, param), permanent=False)
+            return
+
         proxy = param = param.lower()
         if proxy not in util.commonProxy:
             match = pacGenUrlRegxp.match(param)
