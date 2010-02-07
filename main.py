@@ -48,6 +48,10 @@ class PacGenHandler(webapp.RequestHandler):
             self.redirect("/usage?u=" + param, permanent=False)
             return
 
+        if 'System.Net.AutoWebProxyScriptEngine' in self.request.headers['User-Agent']:
+            self.error(403)
+            return
+
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
