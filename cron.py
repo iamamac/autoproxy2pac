@@ -16,4 +16,4 @@ for name, url in (('gfwlist', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk
         if name == 'gfwlist': memcache.delete('gfwtest.js')
         memcache.delete('changelog/%s' % name)
         memcache.delete('changelog/%s.log' % name)
-        util.notifyRssUpdate('feeds.feedburner.com/%s' % name)
+        util.notifyRssUpdate('http://feeds.feedburner.com/%s' % name)

@@ -57,7 +57,7 @@ def notifyRssUpdate(url):
     import xmlrpclib
     rpc = xmlrpclib.ServerProxy('http://ping.feedburner.google.com/')
     result = rpc.weblogUpdates.ping('', url)
-    if result['flerror']: logging.warning('Unable to notify FeedBurner for %s', url)
+    if result['flerror']: logging.warning('Unable to notify FeedBurner for %s: %s', url, result['message'])
 
 def generatePacResponse(handler, proxy, rules=None):
     '''
