@@ -4,6 +4,8 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 import os, re
+import random
+import urlparse
 import util
 from datastore import RuleList
 
@@ -41,6 +43,15 @@ class UsageHandler(webapp.RequestHandler):
 
 class PacGenHandler(webapp.RequestHandler):
     def get(self, param):
+        # Redirect to usage page for visits from links (obviously not a browser PAC fetcher)
+        if 'Referer' in self.request.headers:
+            self.redirect("/usage?u=" + param, permanent=False)
+            return
+
+        if 'System.Net.AutoWebProxyScriptEngine' in self.request.headers['User-Agent']:
+            self.error(403)
+            return
+
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
@@ -48,6 +59,12 @@ class PacGenHandler(webapp.RequestHandler):
         
         if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
         
+        # Load balance
+        mirror = random.choice((None, "http://autoproxy2pac-alfa.appspot.com"))
+        if mirror:
+            self.redirect(urlparse.urljoin(mirror, param), permanent=False)
+            return
+
         proxy = param = param.lower()
         if proxy not in util.commonProxy:
             match = pacGenUrlRegxp.match(param)

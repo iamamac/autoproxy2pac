@@ -1,0 +1,29 @@
+#!/bin/bash
+
+while getopts "p:" opt; do
+  case $opt in
+    p) proxy=$OPTARG; shift;;
+  esac
+  shift
+done
+
+DEV_SERVER_PORT=${1:-8080}
+DEV_SERVER=http://localhost:${DEV_SERVER_PORT}
+
+if ! curl -s -I $DEV_SERVER > /dev/null; then echo "Development server is not running"; exit; fi
+
+read -p "Account: " user
+read -s -p "Password: " pass
+
+for kind in RuleList ChangeLog
+do
+  dumpfile=`mktemp -t dump_$kind`
+  rm $dumpfile
+
+  HTTP_PROXY=$1
+  echo $pass | bulkloader.py --dump --kind=$kind --url=http://autoproxy2pac.appspot.com/remote_api --email=$user --passin --filename=$dumpfile --log_file=$dumpfile.log --db_filename=$dumpfile.db --result_db_filename=$dumpfile.results.db
+  if [ $? -ne 0 ]; then exit; fi
+
+  HTTP_PROXY=
+  echo | bulkloader.py --restore --kind=$kind --url=${DEV_SERVER}/remote_api --app_id=autoproxy2pac --email=test --passin --filename=$dumpfile --log_file=/dev/null --db_filename=skip
+done
