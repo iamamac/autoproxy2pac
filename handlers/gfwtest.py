@@ -1,13 +1,11 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
-import os
+
 import util
 import autoproxy2pac
-from datastore import RuleList
+from models import RuleList
 
 jsFileTemplate = '''/*
  * Provide a javascript function to determine whether a URL is blocked in mainland China
@@ -43,33 +41,25 @@ def generateJs(rules):
     data['encodedFunc'] = base64.b64encode(jsFuncTemplate % data)
     return jsFileTemplate % data
 
-class JsGenHandler(webapp.RequestHandler):
+class JsLibHandler(webapp.RequestHandler):
     def get(self):
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
             return
-        
+
         if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
-        
+
         js = memcache.get('gfwtest.js')
         if js is None:
             js = generateJs(rules.toDict())
             memcache.add('gfwtest.js', js)
-        
+
         self.response.headers['Content-Type'] = 'application/x-javascript'
         self.response.out.write(js)
 
 class TestPageHandler(webapp.RequestHandler):
     def get(self):
         if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
-        
-        path = os.path.join(os.path.dirname(__file__), 'gfwtest.html')
-        self.response.out.write(template.render(path, None))
 
-if __name__ == '__main__':
-    application = webapp.WSGIApplication([('/gfwtest.js', JsGenHandler),
-                                          ('/gfwtest', TestPageHandler)])
-    
-    from google.appengine.ext.webapp.util import run_wsgi_app
-    run_wsgi_app(application)
+        self.response.out.write(util.renderTemplate('gfwtest.html'))

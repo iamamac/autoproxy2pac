@@ -1,4 +1,4 @@
 cron:
 - description: Update rules regularly
-  url: /.cron
+  url: /tasks/update
   schedule: every 30 minutes

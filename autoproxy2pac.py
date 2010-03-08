@@ -58,7 +58,7 @@ def fetchRuleList(url):
 def rule2js(ruleList):
     import re
     jsCode = []
-    
+
     # The syntax of the list is based on Adblock Plus filter rules (http://adblockplus.org/en/filters)
     #   Filter options (those parts start with "$") is not supported
     # AutoProxy Add-on for Firefox has a Javascript implementation
@@ -67,16 +67,16 @@ def rule2js(ruleList):
         # Ignore the first line ([AutoProxy x.x]), empty lines and comments
         if line and not line.startswith("!"):
             useProxy = True
-            
+
             # Exceptions
             if line.startswith("@@"):
                 line = line[2:]
                 useProxy = False
-            
+
             # Regular expressions
             if line.startswith("/") and line.endswith("/"):
                 jsRegexp = line[1:-1]
-            
+
             # Other cases
             else:
                 # Remove multiple wildcards
@@ -99,17 +99,17 @@ def rule2js(ruleList):
                 jsRegexp = re.sub(r"^(\.\*)", "", jsRegexp, 1)
                 # Remove trailing wildcards
                 jsRegexp = re.sub(r"(\.\*)$", "", jsRegexp, 1)
-                
+
                 if jsRegexp == "":
                     jsRegexp = ".*"
                     logging.warning("There is one rule that matches all URL, which is highly *NOT* recommended: %s", line)
-            
+
             jsLine = "  if(/%s/i.test(url)) return %s;" % (jsRegexp, proxyVar if useProxy else defaultVar)
             if useProxy:
                 jsCode.append(jsLine)
             else:
                 jsCode.insert(0, jsLine)
-    
+
     return '\n'.join(jsCode)
 
 def parseTemplate(content):
@@ -118,7 +118,7 @@ def parseTemplate(content):
     if n == 0:
         logging.warning("Can not find auto-generated rule section, user-defined rules will LOST during the update")
         return defaultPacTemplate
-    
+
     template = re.sub(r'(Rule source: ).+', r'\1%(ruleListUrl)s', template)
     template = re.sub(r'(Last update: ).+', r'\1%(ruleListDate)s', template)
     return template
@@ -140,21 +140,21 @@ if __name__ == '__main__':
     ruleListUrl = "http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt"
     proxyString = "PROXY 127.0.0.1:8118"
     defaultString = "DIRECT"
-    
+
     print("Fetching GFW list from %s ..." % ruleListUrl)
     ruleList, ruleListDate = fetchRuleList(ruleListUrl)
-    
+
     try:
         # Try to update the old PAC file
         with open(pacFilepath) as f:
             template = parseTemplate(f.read())
         print("Updating %s ..." % pacFilepath)
-    
+
     except IOError:
         # Generate new PAC file
         template = defaultPacTemplate
         print("Generating %s ..." % pacFilepath)
-    
+
     rules = { 'ruleListUrl'  : ruleListUrl,
               'ruleListDate' : ruleListDate,
               'ruleListCode' : rule2js(ruleList) }

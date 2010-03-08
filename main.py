@@ -1,86 +1,35 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import logging
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
-import os, re
-import random
-import urlparse
-import util
-from datastore import RuleList
+from google.appengine.ext.webapp.util import run_wsgi_app
 
-pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
+from settings import DEBUG
+from handlers import *
 
-class MainHandler(webapp.RequestHandler):
-    def get(self):
-        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
-        
-        path = os.path.join(os.path.dirname(__file__), 'index.html')
-        self.response.out.write(template.render(path,
-            { 'commonProxy' : ((k, v[0]) for k, v in util.commonProxy.items()),
-              'gfwlistRss'  : self.request.relative_url('/changelog/gfwlist.rss') }))
-    
-    def post(self):
-        proxy = self.request.get('name')
-        if proxy not in util.commonProxy:
-            proxy = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
-        
-        self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
-        self.response.headers['Cache-Control'] = 'max-age=600'  # Fix for IE
-        util.generatePacResponse(self, proxy)
+# Log a message each time this module get loaded.
+logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
-class UsageHandler(webapp.RequestHandler):
-    def get(self):
-        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
-        
-        url = self.request.get('u')
-        if url: url = 'http://%s/pac/%s' % (self.request.host, url)
-        
-        path = os.path.join(os.path.dirname(__file__), 'usage.html')
-        self.response.out.write(template.render(path,
-            { 'url'     : url,
-              'browser' : util.getBrowserFamily() }))
+application = webapp.WSGIApplication([
+    ('/', pac_config.MainHandler),
+    ('/usage', pac_config.UsageHandler),
+    ('/pac/', pac_generate.DownloadHandler),
+    ('/pac/(.*)', pac_generate.OnlineHandler),
+    ('/gfwtest.js', gfwtest.JsLibHandler),
+    ('/gfwtest', gfwtest.TestPageHandler),
+    ('/changelog/(.*)\.json', changelog.JsonHandler),
+    ('/changelog/(.*)\.rss', changelog.FeedHandler),
+    ('/changelog/(.*)', changelog.HtmlHandler),
+    ('/tasks/update', tasks.update.Handler),
+], debug=DEBUG)
 
-class PacGenHandler(webapp.RequestHandler):
-    def get(self, param):
-        # Redirect to usage page for visits from links (obviously not a browser PAC fetcher)
-        if 'Referer' in self.request.headers:
-            self.redirect("/usage?u=" + param, permanent=False)
-            return
+def main():
+    if os.getenv('AUTH_DOMAIN') != 'gmail.com':
+        logging.warn('Fixing auth domain (%r)', os.getenv('AUTH_DOMAIN'))
+        os.environ['AUTH_DOMAIN'] = 'gmail.com'
 
-        if 'System.Net.AutoWebProxyScriptEngine' in self.request.headers['User-Agent']:
-            self.error(403)
-            return
-
-        rules = RuleList.getList('gfwlist')
-        if rules is None:
-            self.error(500)
-            return
-        
-        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
-        
-        # Load balance
-        mirror = random.choice((None, "http://autoproxy2pac-alfa.appspot.com"))
-        if mirror:
-            self.redirect(urlparse.urljoin(mirror, param), permanent=False)
-            return
-
-        proxy = param = param.lower()
-        if proxy not in util.commonProxy:
-            match = pacGenUrlRegxp.match(param)
-            if match is None:
-                self.error(404)
-                return
-            type, host, port = match.groups()
-            type = 'SOCKS' if type == 'socks' else 'PROXY'
-            proxy = "%s %s:%s" % (type, host, port)
-        
-        util.generatePacResponse(self, proxy, rules)
+    run_wsgi_app(application)
 
 if __name__ == '__main__':
-    application = webapp.WSGIApplication([('/', MainHandler),
-                                          ('/usage', UsageHandler),
-                                          ('/pac/(.*)', PacGenHandler)])
-    
-    from google.appengine.ext.webapp.util import run_wsgi_app
-    run_wsgi_app(application)
+    main()
