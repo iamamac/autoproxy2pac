@@ -1,57 +1,45 @@
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>AutoProxy2PAC - GFW Test</title>
-    <script type="text/javascript">
-      function testUrl() {
-        url = document.test.url.value;
-        if(isBlockedByGFW(url))
-          document.getElementById('status').src='static/block.jpg';
-        else
-          document.getElementById('status').src='static/pass.png';
-      }
-    </script>
-    <script src="gfwtest.js" type="text/javascript"></script>
-  </head>
-  <body onload="document.test.url.focus();testUrl()">
-    <!-- Google Analytics code START -->
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-10820515-1']);
-      _gaq.push(['_setDomainName', 'none']);
-      _gaq.push(['_setAllowLinker', true]);
-      _gaq.push(['_setAllowHash', false]);
-      _gaq.push(['_trackPageview']);
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
-      })();
-    </script>
-    <!-- Google Analytics code END -->
-    <font size="-1"><a href="/">&lt;&lt; Home</a></font>
-    <center>
-    <h1>GFW Test</h1>
-    <form name="test" onsubmit="testUrl();return false">
-      <input type="text" name="url" size="60" value="http://" style="font-size:17px;margin-bottom:0.2em;vertical-align:bottom"/>
-      <button type="button" onclick="testUrl()" style="font-size:15px;height:28px;margin:0.2em">Test</button>
-    </form>
-    <img id="status" width="150" height="150"/>
-    </center>
-    <p align="right">If you find incorrect status, please report <a href="https://jimmyxu.com/ap/">here</a></p>
-    <hr>
-    <div style="text-align:center"><font size="-1">
-      My twitter: <a href="https://twitter.com/mengxl">@mengxl</a> |
-      Include <a href="gfwtest.js">this script</a> in your own website! |
-      GFW rules provided by <a href="http://www.autoproxy.org/en/subscriptions">gfwList</a>
-    </font></div>
-    <!-- Google Translation code -->
-	<!--<div id="google_translate_element"></div>--><script>
-	function googleTranslateElementInit() {
-	  new google.translate.TranslateElement({
-	    pageLanguage: 'en'
-	  }, 'google_translate_element');
-	}
-	</script><script src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-  </body>
-</html>
+{%extends "base.html"%}
+
+{%block title1%}GFW Test{%endblock%}
+
+{%block deferred_script%}
+<script type="text/javascript" src="/gfwtest.js"></script>
+<script type="text/javascript">
+  function testUrl() {
+    url = document.test.url.value;
+    if(isBlockedByGFW(url))
+      document.getElementById('status').src='static/block.jpg';
+    else
+      document.getElementById('status').src='static/pass.png';
+  }
+  $(document).ready(function() {
+    document.test.url.focus();
+    testUrl();
+  });
+</script>
+{%endblock%}
+
+{%block header%}
+<font size="-1"><a href="/">&lt;&lt; Home</a></font>
+{%endblock%}
+
+{%block content%}
+<center>
+<h1>GFW Test</h1>
+<form name="test" onsubmit="testUrl();return false">
+  <input type="text" name="url" size="60" value="http://" style="font-size:17px;margin-bottom:0.2em;vertical-align:bottom"/>
+  <button type="button" onclick="testUrl()" style="font-size:15px;height:28px;margin:0.2em">Test</button>
+</form>
+<img id="status" width="150" height="150"/>
+</center>
+<p align="right">If you find incorrect status, please report <a href="https://jimmyxu.com/ap/">here</a></p>
+{%endblock%}
+
+{%block footer%}
+<hr>
+<div style="text-align:center"><font size="-1">
+  My twitter: <a href="https://twitter.com/mengxl">@mengxl</a> |
+  Include <a href="gfwtest.js">this script</a> in your own website! |
+  GFW rules provided by <a href="http://www.autoproxy.org/en/subscriptions">gfwList</a>
+</font></div>
+{%endblock%}

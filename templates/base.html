@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>
+    {%if is_dev%}
+      (DEV)
+    {%endif%}
+    {%block title%}
+      {%block title1%}Untitled{%endblock%} -
+      AutoProxy2PAC
+    {%endblock%}
+  </title>
+  <link rel="icon" href="{{media_url}}favicon.ico"/>
+  <link type="text/css" rel="stylesheet" href="{{media_url}}styles.css"/>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="{{media_url}}script.js"></script>
+  {%block css_and_script%}{%endblock%}
+</head>
+
+<body>
+  <!-- Google Analytics code START -->
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-10820515-1']);
+    _gaq.push(['_setDomainName', 'none']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_setAllowHash', false]);
+    _gaq.push(['_trackPageview']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+    })();
+  </script>
+  <!-- Google Analytics code END -->
+
+  <div id="header">
+    {%block header%}{%endblock%}
+  </div>
+
+  <div id="content">
+    {%block content%}
+    <div id="main">
+      {%block main%}BODY GOES HERE{%endblock%}
+    </div>
+    <div id="sidebar">
+      {%block sidebar%}{%endblock%}
+    </div>
+    {%endblock%}
+  </div>
+
+  <div id="footer">
+    {%block footer%}{%endblock%}
+  </div>
+
+  {%block deferred_script%}{%endblock%}
+
+  <!-- Google Translation code START -->
+  <script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: '{%block language%}zh-CN{%endblock%}'
+    }, 'google_translate_element');
+  }
+  </script><script src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <!-- Google Translation code END -->
+</body>
+</html>
