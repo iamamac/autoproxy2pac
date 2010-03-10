@@ -3,8 +3,8 @@
 import logging
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
+from google.appengine.api.labs import taskqueue
 
-import util
 from models import RuleList
 
 class Handler(webapp.RequestHandler):
@@ -19,4 +19,4 @@ class Handler(webapp.RequestHandler):
                 if name == 'gfwlist': memcache.delete('gfwtest.js')
                 memcache.delete('changelog/%s' % name)
                 memcache.delete('changelog/%s.log' % name)
-                util.notifyRssUpdate('http://feeds.feedburner.com/%s' % name)
+                taskqueue.add(url='/tasks/feed_ping', params={'url':'http://feeds.feedburner.com/%s' % name})

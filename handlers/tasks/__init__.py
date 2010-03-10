@@ -1,1 +1,2 @@
-__all__ = ["update"]
+import feedping
+import update

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import logging
 from google.appengine.ext.webapp import template
 
 import settings
@@ -41,13 +40,3 @@ def isCachedByBrowser(handler, age=0, lastModified=None, etag=None):
     if lastModified: handler.response.headers['Last-Modified'] = lastModified
     if etag: handler.response.headers['ETag'] = etag
     return False
-
-def notifyRssUpdate(url):
-    '''
-    Ping FeedBurner to update the feed immediately
-    @see: http://feedburner.google.com/fb/a/ping
-    '''
-    import xmlrpclib
-    rpc = xmlrpclib.ServerProxy('http://ping.feedburner.google.com/')
-    result = rpc.weblogUpdates.ping('', url)
-    if result['flerror']: logging.warning('Unable to notify FeedBurner for %s: %s', url, result['message'])

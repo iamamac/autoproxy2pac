@@ -1,3 +1,6 @@
-from tasks import *
+import tasks
 
-__all__ = ["tasks", "changelog", "gfwtest", "pac_config", "pac_generate"]
+import changelog
+import gfwtest
+import pac_config
+import pac_generate

@@ -21,6 +21,7 @@ application = webapp.WSGIApplication([
     ('/changelog/(.*)\.json', changelog.JsonHandler),
     ('/changelog/(.*)\.rss', changelog.FeedHandler),
     ('/changelog/(.*)', changelog.HtmlHandler),
+    ('/tasks/feed_ping', tasks.feedping.FeedBurnerHandler),
     ('/tasks/update', tasks.update.Handler),
 ], debug=DEBUG)
 
