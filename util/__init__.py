@@ -41,4 +41,4 @@ def isCachedByBrowser(handler, age=0, lastModified=None, etag=None):
     if etag: handler.response.headers['ETag'] = etag
     return False
 
-from memcache import memcached
+from memcache import memcached, responsecached
