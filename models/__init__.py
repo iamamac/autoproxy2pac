@@ -4,6 +4,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 
 import autoproxy2pac
+from util import memcached
 
 class RuleList(db.Model):
     name = db.StringProperty(required=True)
@@ -19,7 +20,7 @@ class RuleList(db.Model):
 
         self.code = autoproxy2pac.rule2js(self.raw)
         self.date = timestamp
-        memcache.set(self.name, self)
+        memcache.set(self.name, self, namespace='rule')
         self.put()
 
         if rawOld:
@@ -34,13 +35,9 @@ class RuleList(db.Model):
                  'ruleListCode' : self.code }
 
     @classmethod
+    @memcached(key=(lambda _, name:name), namespace='rule')
     def getList(cls, name):
-        data = memcache.get(name)
-        if data is not None: return data
-
-        data = cls.gql('WHERE name=:1', name).get()
-        memcache.add(name, data)
-        return data
+        return cls.gql('WHERE name=:1', name).get()
 
 class ChangeLog(db.Model):
     ruleList = db.ReferenceProperty(RuleList, required=True)
