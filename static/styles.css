@@ -1,6 +1,8 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 100%;
+    width: 960px;
+    margin: auto;
 }
 
 a {
@@ -16,10 +18,12 @@ a:hover {
 
 #main {
     float: left;
+    width: 625px;
 }
 
 #sidebar {
     float: right;
+    width: 300px;
 }
 
 #footer {
