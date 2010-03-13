@@ -24,4 +24,5 @@ a:hover {
 
 #footer {
     clear: both;
+    display: block;
 }

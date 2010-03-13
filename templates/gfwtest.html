@@ -3,8 +3,8 @@
 {%block title1%}GFW Test{%endblock%}
 
 {%block deferred_script%}
-<script type="text/javascript" src="/gfwtest.js"></script>
-<script type="text/javascript">
+<script src="/gfwtest.js"></script>
+<script>
   function testUrl() {
     url = document.test.url.value;
     if(isBlockedByGFW(url))

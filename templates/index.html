@@ -3,14 +3,14 @@
 {%block title%}AutoProxy2PAC - 全平台智能代理{%endblock%}
 
 {%block css_and_script%}
-<link type="text/css" rel="stylesheet" media="screen" href="/facebox/facebox.css"/>
-<link type="text/css" rel="stylesheet" href="{{media_url}}changelog.css"/>
+<link rel="stylesheet" media="screen" href="/facebox/facebox.css">
+<link rel="stylesheet" href="{{media_url}}changelog.css">
 {%endblock%}
 
 {%block deferred_script%}
-<script type="text/javascript" src="/facebox/facebox.js"></script>
-<script type="text/javascript" src="{{media_url}}changelog.js"></script>
-<script type="text/javascript">
+<script src="/facebox/facebox.js"></script>
+<script src="{{media_url}}changelog.js"></script>
+<script>
   function getPacUrl() {
   	var name = $("input[@name='name']:checked").val();
     if(name != "custom")
