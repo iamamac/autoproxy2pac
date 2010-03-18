@@ -4,11 +4,11 @@ import re
 import urlparse
 from google.appengine.ext import webapp
 
-import util
 import autoproxy2pac
 import mirrors
 from models import RuleList
 from pac_config import commonProxy
+from util import useragent, webcached
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -30,7 +30,7 @@ def generatePacResponse(handler, proxy, rules=None):
     proxyString = (commonProxy.get(proxy) or (None, proxy))[1]
 
     # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
-    if util.getBrowserFamily() == 'Chrome':
+    if useragent.family() == 'Chrome':
         proxyString = proxyString.replace('SOCKS', 'SOCKS5')
 
     configs = { 'proxyString'   : proxyString,
@@ -52,6 +52,7 @@ class DownloadHandler(webapp.RequestHandler):
         generatePacResponse(self, proxy)
 
 class OnlineHandler(webapp.RequestHandler):
+    @webcached('public,max-age=600')  # 10min
     def get(self, param):
         # Redirect to usage page for visits from links (obviously not a browser PAC fetcher)
         if 'Referer' in self.request.headers:
@@ -67,7 +68,7 @@ class OnlineHandler(webapp.RequestHandler):
             self.error(500)
             return
 
-        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
+        self.lastModified(rules.date)
 
         # Load balance
         mirror = mirrors.pick()

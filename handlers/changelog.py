@@ -6,8 +6,8 @@ from google.appengine.api import memcache
 import django.utils.simplejson as json
 from django.utils.feedgenerator import DefaultFeed as Feed
 
-import util
 from models import RuleList, ChangeLog
+from util import template, webcached
 
 def getSampleUrlFromRule(rule):
     from urllib import unquote
@@ -45,6 +45,7 @@ def generateLogFromDiff(diff):
     return log
 
 class JsonHandler(webapp.RequestHandler):
+    @webcached('public,max-age=600')  # 10min
     def get(self, name):
         name = name.lower()
         rules = RuleList.getList(name)
@@ -52,7 +53,7 @@ class JsonHandler(webapp.RequestHandler):
             self.error(404)
             return
 
-        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
+        self.lastModified(rules.date)
 
         start = int(self.request.get('start', 0))
         fetchNum = start + int(self.request.get('num', 50))
@@ -73,6 +74,7 @@ class JsonHandler(webapp.RequestHandler):
         self.response.out.write(json.dumps(changes[start:fetchNum]))
 
 class FeedHandler(webapp.RequestHandler):
+    @webcached()
     def get(self, name):
         name = name.lower()
         rules = RuleList.getList(name)
@@ -87,7 +89,7 @@ class FeedHandler(webapp.RequestHandler):
             self.redirect('http://feeds.feedburner.com/%s' % name, permanent=False)
             return
 
-        if util.isCachedByBrowser(self, 0, rules.date): return
+        self.lastModified(rules.date)
 
         start = int(self.request.get('start', 0))
         fetchNum = start + int(self.request.get('num', 20))
@@ -111,7 +113,7 @@ class FeedHandler(webapp.RequestHandler):
         for item in logs:
             f.add_item(title="%d月%d日 %s 更新: 增加 %d 条, 删除 %d 条" % (item['timestamp'].month, item['timestamp'].day, name, len(item['block']), len(item['unblock'])),
                        link='',
-                       description=util.renderTemplate('changelogRssItem.html', **item),
+                       description=template.render('changelogRssItem.html', **item),
                        author_name="gfwlist",
                        pubdate=item['timestamp'])
 
@@ -124,7 +126,7 @@ class HtmlHandler(webapp.RequestHandler):
             self.error(404)
             return
 
-        self.response.out.write(util.renderTemplate('changelog.html',
+        self.response.out.write(template.render('changelog.html',
             name=name,
             rss=self.request.relative_url('%s.rss' % name)
         ))

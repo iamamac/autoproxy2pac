@@ -2,7 +2,7 @@
 
 from google.appengine.ext import webapp
 
-import util
+from util import template, useragent, webcached
 
 commonProxy = {
                 'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
@@ -17,22 +17,23 @@ commonProxy = {
               }
 
 class MainHandler(webapp.RequestHandler):
+    @webcached('public,max-age=3600')  # 1h
     def get(self):
-        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
-
-        self.response.out.write(util.renderTemplate('index.html',
+        self.lastModified(template.mtime('index.html'))
+        self.response.out.write(template.render('index.html',
             commonProxy=((k, v[0]) for k, v in commonProxy.items()),
             gfwlistRss=self.request.relative_url('/changelog/gfwlist.rss'),
         ))
 
 class UsageHandler(webapp.RequestHandler):
+    @webcached('public,max-age=86400')  # 24h
     def get(self):
-        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
+        self.lastModified(template.mtime('usage.html'))
 
         url = self.request.get('u')
         if url: url = 'http://%s/pac/%s' % (self.request.host, url)
 
-        self.response.out.write(util.renderTemplate('usage.html',
+        self.response.out.write(template.render('usage.html',
             url=url,
-            browser=util.getBrowserFamily(),
+            browser=useragent.family(),
         ))

@@ -3,9 +3,9 @@
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
-import util
 import autoproxy2pac
 from models import RuleList
+from util import template, webcached
 
 jsFileTemplate = '''/*
  * Provide a javascript function to determine whether a URL is blocked in mainland China
@@ -42,13 +42,14 @@ def generateJs(rules):
     return jsFileTemplate % data
 
 class JsLibHandler(webapp.RequestHandler):
+    @webcached('public,max-age=600')  # 10min
     def get(self):
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
             return
 
-        if util.isCachedByBrowser(self, util.cacheAgeForRuleRelated, rules.date): return
+        self.lastModified(rules.date)
 
         js = memcache.get('gfwtest.js')
         if js is None:
@@ -59,7 +60,7 @@ class JsLibHandler(webapp.RequestHandler):
         self.response.out.write(js)
 
 class TestPageHandler(webapp.RequestHandler):
+    @webcached('public,max-age=86400')  # 24h
     def get(self):
-        if util.isCachedByBrowser(self, util.cacheAgeForStatic): return
-
-        self.response.out.write(util.renderTemplate('gfwtest.html'))
+        self.lastModified(template.mtime('gfwtest.html'))
+        self.response.out.write(template.render('gfwtest.html'))

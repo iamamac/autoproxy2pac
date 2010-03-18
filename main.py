@@ -11,6 +11,9 @@ from handlers import *
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
+# A hack to be able to get the status of a Response instance, read-only
+webapp.Response.status = property(lambda self: self._Response__status[0])
+
 application = webapp.WSGIApplication([
     ('/', pac_config.MainHandler),
     ('/usage', pac_config.UsageHandler),
