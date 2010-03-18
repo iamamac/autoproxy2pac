@@ -16,6 +16,7 @@ class memcached(object):
     @param namespace: An optional namespace for the key
 
     @note: Set CACHE_ENABLED to False to globally disable memcache
+    @note: Won't cache if the inner function returns None
     '''
     def __init__(self, key, time=0, namespace=None):
         self.key = key
@@ -27,11 +28,11 @@ class memcached(object):
         def wrapped(*args, **kwargs):
             key = self.key(*args, **kwargs) if callable(self.key) else self.key
 
-            data = memcache.get(key)
+            data = memcache.get(key, namespace=self.namespace)
             if data is not None: return data
 
             data = f(*args, **kwargs)
-            memcache.set(key, data, self.time, self.namespace)
+            if data is not None: memcache.set(key, data, self.time, namespace=self.namespace)
             return data
 
         return wrapped if CACHE_ENABLED else f
@@ -43,10 +44,11 @@ class responsecached(object):
 
     @note: Multiple memcache items may be generated using the default key algorithm
     '''
-    def __init__(self, time=0, key=None, namespace='response'):
+    def __init__(self, time=0, key=None, namespace='response', cacheableStatus=(200,)):
         self.time = time
         self.key = key if key else lambda h, *_: h.request.path_qs
         self.namespace = namespace
+        self.cacheableStatus = cacheableStatus
 
     def __call__(self, f):
         @wraps(f)
@@ -54,7 +56,7 @@ class responsecached(object):
             @memcached(self.key, self.time, self.namespace)
             def getResponse(handler, *args):
                 f(handler, *args)
-                return handler.response
+                return handler.response if handler.response.status in self.cacheableStatus else None
 
             # In `WSGIApplication.__call__`, `handler.response` is just a reference
             # of the local variable `response`, whose `wsgi_write` method is called.
