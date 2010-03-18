@@ -3,6 +3,8 @@ version: 3
 runtime: python
 api_version: 1
 
+default_expiration: 1d
+
 handlers:
 
 - url: /(robots.txt|favicon.ico)
