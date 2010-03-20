@@ -5,28 +5,33 @@ import logging
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-from settings import DEBUG
+from settings import DEBUG, MAIN_SERVER, CACHE_ENABLED, RATELIMIT_ENABLED, PAC_URL_PREFIX
 from handlers import *
 
 # Log a message each time this module get loaded.
-logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
+logging.info('Loading %s %s, MAIN_SERVER = %s, CACHE_ENABLED = %s, RATELIMIT_ENABLED = %s, PAC_URL_PREFIX = "%s"',
+             os.getenv('APPLICATION_ID'), os.getenv('CURRENT_VERSION_ID'),
+             MAIN_SERVER, CACHE_ENABLED, RATELIMIT_ENABLED, PAC_URL_PREFIX)
 
 # A hack to be able to get the status of a Response instance, read-only
 webapp.Response.status = property(lambda self: self._Response__status[0])
 
-application = webapp.WSGIApplication([
+urlMapping = [
+    ('/tasks/update', tasks.update.Handler),
+    ('/%s(.*)' % PAC_URL_PREFIX, pac_generate.OnlineHandler),
+]
+if MAIN_SERVER: urlMapping += [
     ('/', pac_config.MainHandler),
     ('/usage', pac_config.UsageHandler),
     ('/pac/', pac_generate.DownloadHandler),
-    ('/pac/(.*)', pac_generate.OnlineHandler),
     ('/gfwtest.js', gfwtest.JsLibHandler),
     ('/gfwtest', gfwtest.TestPageHandler),
     ('/changelog/(.*)\.json', changelog.JsonHandler),
     ('/changelog/(.*)\.rss', changelog.FeedHandler),
     ('/changelog/(.*)', changelog.HtmlHandler),
     ('/tasks/feed_ping', tasks.feedping.FeedBurnerHandler),
-    ('/tasks/update', tasks.update.Handler),
-], debug=DEBUG)
+]
+application = webapp.WSGIApplication(urlMapping, DEBUG)
 
 def main():
     if DEBUG: logging.getLogger().setLevel(logging.DEBUG)

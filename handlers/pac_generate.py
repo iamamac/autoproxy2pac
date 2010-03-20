@@ -8,9 +8,8 @@ from google.appengine.api import memcache
 
 import autoproxy2pac
 from models import RuleList
-from pac_config import commonProxy
 from util import useragent, webcached
-from settings import DEBUG, MAIN_SERVER, MIRRORS, RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA
+from settings import DEBUG, MAIN_SERVER, PRESET_PROXIES, MIRRORS, RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -29,7 +28,7 @@ def generatePacResponse(handler, proxy, rules=None):
             handler.error(500)
             return
 
-    proxyString = (commonProxy.get(proxy) or (None, proxy))[1]
+    proxyString = (PRESET_PROXIES.get(proxy) or (None, proxy))[1]
 
     # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
     if useragent.family() == 'Chrome':
@@ -46,7 +45,7 @@ def generatePacResponse(handler, proxy, rules=None):
 class DownloadHandler(webapp.RequestHandler):
     def get(self):
         proxy = self.request.get('name')
-        if proxy not in commonProxy:
+        if proxy not in PRESET_PROXIES:
             proxy = "%s %s:%s" % (self.request.get('type'), self.request.get('host'), self.request.get('port'))
 
         self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
@@ -84,7 +83,7 @@ class OnlineHandler(webapp.RequestHandler):
         if RATELIMIT_ENABLED and self.isRateLimited(): return
 
         proxy = param = param.lower()
-        if proxy not in commonProxy:
+        if proxy not in PRESET_PROXIES:
             match = pacGenUrlRegxp.match(param)
             if match is None:
                 self.error(404)
@@ -112,7 +111,8 @@ class OnlineHandler(webapp.RequestHandler):
             if rate == quota + 1:
                 logging.info('%(ip)s has reached the rate limit (%(qt)d per %(dur)dh), UA="%(ua)s"', dict(qt=quota, dur=RATELIMIT_DURATION, **param))
             logging.debug('%(ip)s is banned on full fetch #%(rt)d, UA="%(ua)s"', dict(rt=rate, **param))
-            self.error(403)
-            return True
+            if not DEBUG:
+                self.error(403)
+                return True
 
         return False

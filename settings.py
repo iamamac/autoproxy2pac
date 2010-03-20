@@ -14,7 +14,21 @@ MEDIA_URL = '/static/'
 
 CACHE_ENABLED = not DEBUG
 
-RATELIMIT_ENABLED = not DEBUG
+RATELIMIT_ENABLED = True
+
+PAC_URL_PREFIX = 'pac/' if MAIN_SERVER else ''
+
+PRESET_PROXIES = {
+    'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
+    'tor'          : ('Tor', 'PROXY 127.0.0.1:8118; SOCKS 127.0.0.1:9050'),
+    'jap'          : ('JAP', 'PROXY 127.0.0.1:4001'),
+    'your-freedom' : ('Your Freedom', 'PROXY 127.0.0.1:8080'),
+    'wu-jie'       : ('无界', 'PROXY 127.0.0.1:9666'),
+    'free-gate'    : ('自由门', 'PROXY 127.0.0.1:8580'),
+    'puff'         : ('Puff', 'PROXY 127.0.0.1:1984'),
+    'privoxy'      : ('Privoxy + SOCKS', 'PROXY 127.0.0.1:8118'),
+    'ssh-d'        : ('ssh -D / MyEnTunnel', 'SOCKS 127.0.0.1:7070'),
+}
 
 try:
     # Settings not under version control

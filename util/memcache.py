@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from functools import wraps
 from google.appengine.api import memcache
 
@@ -31,6 +32,7 @@ class memcached(object):
             data = memcache.get(key, namespace=self.namespace)
             if data is not None: return data
 
+            logging.debug('Memcache for %s missed, key = %s@%s', f.__name__, key, self.namespace)
             data = f(*args, **kwargs)
             if data is not None: memcache.set(key, data, self.time, namespace=self.namespace)
             return data
