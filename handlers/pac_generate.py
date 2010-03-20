@@ -7,11 +7,10 @@ from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
 import autoproxy2pac
-import mirrors
 from models import RuleList
 from pac_config import commonProxy
 from util import useragent, webcached
-from settings import RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA
+from settings import DEBUG, MAIN_SERVER, MIRRORS, RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -58,7 +57,7 @@ class OnlineHandler(webapp.RequestHandler):
     @webcached('public,max-age=600')  # 10min
     def get(self, param):
         # Redirect to usage page for visits from links (obviously not a browser PAC fetcher)
-        if 'Referer' in self.request.headers:
+        if MAIN_SERVER and 'Referer' in self.request.headers:
             self.redirect("/usage?u=" + param, permanent=False)
             return
 
@@ -71,10 +70,16 @@ class OnlineHandler(webapp.RequestHandler):
         self.lastModified(rules.date)
 
         # Load balance
-        mirror = mirrors.pick()
-        if mirror:
-            self.redirect(urlparse.urljoin(mirror, param), permanent=False)
-            return
+        if MAIN_SERVER:
+            mirror = self.pickMirror()
+            if mirror:
+                mirror = urlparse.urljoin(mirror, param)
+                logging.debug('Redirect the PAC fetcher to %s', mirror)
+                if not DEBUG:
+                    # A fixed server for a rate-limiting cycle
+                    self.response.headers['Cache-Control'] = 'public,max-age=%d' % RATELIMIT_DURATION * 3600
+                    self.redirect(mirror, permanent=False)
+                    return
 
         if RATELIMIT_ENABLED and self.isRateLimited(): return
 
@@ -89,6 +94,9 @@ class OnlineHandler(webapp.RequestHandler):
             proxy = "%s %s:%s" % (type, host, port)
 
         generatePacResponse(self, proxy, rules)
+
+    def pickMirror(self):
+        return MIRRORS[hash(self.request.remote_addr) % len(MIRRORS)]
 
     def isRateLimited(self):
         param = {'ip':self.request.remote_addr, 'ua':self.request.user_agent}
