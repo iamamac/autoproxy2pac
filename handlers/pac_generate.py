@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import re
 import urlparse
 from google.appengine.ext import webapp
+from google.appengine.api import memcache
 
 import autoproxy2pac
 import mirrors
 from models import RuleList
 from pac_config import commonProxy
 from util import useragent, webcached
+from settings import RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA
 
 pacGenUrlRegxp = re.compile(r'(proxy|http|socks)/([\w.]+)/(\d+)$')
 
@@ -59,15 +62,12 @@ class OnlineHandler(webapp.RequestHandler):
             self.redirect("/usage?u=" + param, permanent=False)
             return
 
-        if 'System.Net.AutoWebProxyScriptEngine' in self.request.headers['User-Agent']:
-            self.error(403)
-            return
-
         rules = RuleList.getList('gfwlist')
         if rules is None:
             self.error(500)
             return
 
+        self.response.headers['ETag'] = '"' + rules.date.replace(',', '').replace(' ', '') + '"'
         self.lastModified(rules.date)
 
         # Load balance
@@ -75,6 +75,8 @@ class OnlineHandler(webapp.RequestHandler):
         if mirror:
             self.redirect(urlparse.urljoin(mirror, param), permanent=False)
             return
+
+        if RATELIMIT_ENABLED and self.isRateLimited(): return
 
         proxy = param = param.lower()
         if proxy not in commonProxy:
@@ -87,3 +89,22 @@ class OnlineHandler(webapp.RequestHandler):
             proxy = "%s %s:%s" % (type, host, port)
 
         generatePacResponse(self, proxy, rules)
+
+    def isRateLimited(self):
+        param = {'ip':self.request.remote_addr, 'ua':self.request.user_agent}
+
+        key = '%(ua)s@%(ip)s' % param
+        rate = memcache.incr(key, namespace='rate')  # incr won't refresh the expiration time
+        if rate is None:
+            rate = 1
+            memcache.add(key, 1, RATELIMIT_DURATION * 3600, namespace='rate')
+
+        quota = RATELIMIT_QUOTA(**param)
+        if rate > quota:
+            if rate == quota + 1:
+                logging.info('%(ip)s has reached the rate limit (%(qt)d per %(dur)dh), UA="%(ua)s"', dict(qt=quota, dur=RATELIMIT_DURATION, **param))
+            logging.debug('%(ip)s is banned on full fetch #%(rt)d, UA="%(ua)s"', dict(rt=rate, **param))
+            self.error(403)
+            return True
+
+        return False

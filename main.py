@@ -29,6 +29,8 @@ application = webapp.WSGIApplication([
 ], debug=DEBUG)
 
 def main():
+    if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
+
     if os.getenv('AUTH_DOMAIN') != 'gmail.com':
         logging.warn('Fixing auth domain (%r)', os.getenv('AUTH_DOMAIN'))
         os.environ['AUTH_DOMAIN'] = 'gmail.com'
