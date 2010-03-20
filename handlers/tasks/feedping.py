@@ -9,7 +9,7 @@ class FeedBurnerHandler(webapp.RequestHandler):
     Ping FeedBurner to update the feed immediately
     @see: http://feedburner.google.com/fb/a/ping
     '''
-    def get(self):
+    def post(self):
         url = self.request.get('url')
 
         try:
