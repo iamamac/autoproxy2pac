@@ -9,9 +9,11 @@ from settings import DEBUG, MAIN_SERVER, CACHE_ENABLED, RATELIMIT_ENABLED, PAC_U
 from handlers import *
 
 # Log a message each time this module get loaded.
-logging.info('Loading %s %s, MAIN_SERVER = %s, CACHE_ENABLED = %s, RATELIMIT_ENABLED = %s, PAC_URL_PREFIX = "%s"',
-             os.getenv('APPLICATION_ID'), os.getenv('CURRENT_VERSION_ID'),
-             MAIN_SERVER, CACHE_ENABLED, RATELIMIT_ENABLED, PAC_URL_PREFIX)
+logging.debug(
+    'Loading %s %s, MAIN_SERVER = %s, CACHE_ENABLED = %s, RATELIMIT_ENABLED = %s, PAC_URL_PREFIX = "%s"',
+    os.getenv('APPLICATION_ID'), os.getenv('CURRENT_VERSION_ID'),
+    MAIN_SERVER, CACHE_ENABLED, RATELIMIT_ENABLED, PAC_URL_PREFIX,
+)
 
 # A hack to be able to get the status of a Response instance, read-only
 webapp.Response.status = property(lambda self: self._Response__status[0])
