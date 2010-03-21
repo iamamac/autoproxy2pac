@@ -20,7 +20,7 @@ webapp.Response.status = property(lambda self: self._Response__status[0])
 
 urlMapping = [
     ('/tasks/update', tasks.update.Handler),
-    ('/%s(.*)' % PAC_URL_PREFIX, pac_generate.OnlineHandler),
+    ('/%s(.+)' % PAC_URL_PREFIX, pac_generate.OnlineHandler),
 ]
 if MAIN_SERVER: urlMapping += [
     ('/', pac_config.MainHandler),
