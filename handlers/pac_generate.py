@@ -76,7 +76,7 @@ class OnlineHandler(webapp.RequestHandler):
                 logging.debug('Redirect the PAC fetcher to %s', mirror)
                 if not DEBUG:
                     # A fixed server for a rate-limiting cycle
-                    self.response.headers['Cache-Control'] = 'public,max-age=%d' % RATELIMIT_DURATION * 3600
+                    self.response.headers['Cache-Control'] = 'public,max-age=%d' % (RATELIMIT_DURATION * 3600)
                     self.redirect(mirror, permanent=False)
                     return
 
