@@ -3,7 +3,12 @@ body {
 }
 
 a {
+    color: rgb(51, 102, 153);
     text-decoration: none;
+}
+
+a:visited {
+    color: rgb(102, 102, 153);
 }
 
 a:hover {
@@ -74,6 +79,19 @@ a:hover {
 }
 
 #footer {
-    clear: both;
     display: block;
+    font-size: 12px;
+    color: rgb(85, 85, 85);
+    text-align: center;
+    border-top: 1px solid rgb(204, 204, 204);
+    margin-top: 20px;
+    padding: 10px 0px 20px 0px;
+}
+
+#footer #poweredby {
+    margin-left: 50px;
+}
+
+#footer #poweredby a {
+    margin-left: 8px;
 }
