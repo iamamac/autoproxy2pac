@@ -35,26 +35,41 @@
   </script>
   <!-- Google Analytics code END -->
 
-  <header id="header">
-    {%block header%}{%endblock%}
-  </header>
+  <div id="page">
+    <header id="header">
+      {%block header%}
+      <nav id="navigation">
+        <ul>
+          <li><a href="/">配置</a></li>
+          <li><a href="/gfwtest">网址测试</a></li>
+        </ul>
+      </nav>
+      <hgroup>
+        <h1 id="logo">
+          <a href="/">AutoProxy2PAC</a>
+        </h1>
+        <h2 id="tagline">{%block tagline%}{%endblock%}</h2>
+      </hgroup>
+      {%endblock%}
+    </header>
 
-  <div id="content">
-    {%block content%}
-    <div id="main">
-      {%block main%}BODY GOES HERE{%endblock%}
+    <div id="content">
+      {%block content%}
+      <div id="main">
+        {%block main%}BODY GOES HERE{%endblock%}
+      </div>
+      <aside id="sidebar">
+        {%block sidebar%}{%endblock%}
+      </aside>
+      {%endblock%}
     </div>
-    <aside id="sidebar">
-      {%block sidebar%}{%endblock%}
-    </aside>
-    {%endblock%}
-  </div>
 
-  <footer id="footer">
-    {%block footer%}
-    <a href="http://validator.w3.org/check?uri=referer">HTML5</a>
-    {%endblock%}
-  </footer>
+    <footer id="footer">
+      {%block footer%}
+      <a href="http://validator.w3.org/check?uri=referer">HTML5</a>
+      {%endblock%}
+    </footer>
+  </div>
 
   {%block deferred_script%}{%endblock%}
 

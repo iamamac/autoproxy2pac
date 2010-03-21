@@ -1,8 +1,5 @@
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 100%;
-    width: 960px;
-    margin: auto;
+    font-family: 'Lucida Grande', Tahoma, Arial, 'Microsoft YaHei', STHeiTi, simsun, sans-serif;
 }
 
 a {
@@ -13,7 +10,57 @@ a:hover {
     text-decoration: underline;
 }
 
+#page {
+    width: 960px;
+    margin: auto;
+}
+
 #header {
+    display: block;
+    margin-bottom: 30px;
+}
+
+#logo {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 40px;
+    font-weight: normal;
+    line-height: 1.4;
+    border-bottom: 2px solid rgb(68, 68, 68);
+    margin: 0px;
+}
+
+#logo a {
+    color: black;
+    text-decoration: none;
+}
+
+#tagline {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 8px 0px 0px 0px;
+}
+
+#navigation {
+    font-size: 18px;
+    float: right;
+    margin-top: 22px;
+    width: 600px;
+}
+
+#navigation ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#navigation li {
+    display: inline;
+    margin: 0px 12px;
+}
+
+#navigation a {
+    color: rgb(68, 68, 68);
+    text-decoration: none;
 }
 
 #main {
