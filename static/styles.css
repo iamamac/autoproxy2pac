@@ -16,7 +16,7 @@ a:hover {
 }
 
 #page {
-    width: 960px;
+    width: 800px;
     margin: auto;
 }
 
@@ -49,7 +49,7 @@ a:hover {
     font-size: 18px;
     float: right;
     margin-top: 22px;
-    width: 600px;
+    width: 480px;
 }
 
 #navigation ul {
@@ -70,12 +70,12 @@ a:hover {
 
 #main {
     float: left;
-    width: 625px;
+    width: 480px;
 }
 
 #sidebar {
     float: right;
-    width: 300px;
+    width: 290px;
 }
 
 #footer {
