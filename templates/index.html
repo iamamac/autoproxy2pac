@@ -5,21 +5,60 @@
 {%block css_and_script%}
 <link rel="stylesheet" media="screen" href="/facebox/facebox.css">
 <link rel="stylesheet" href="{{media_url}}changelog.css">
+<style>
+  #config {
+    font-size: 16px;
+    background-color: #c8e8f3;
+    padding: 30px 40px;
+    width: 360px;
+    margin: 0px auto;
+    -moz-border-radius: 12px; /* FF1+ */
+    -webkit-border-radius: 12px; /* Saf3+, Chrome */
+    border-radius: 12px; /* Opera 10.5, IE 9 */
+    -moz-box-shadow: 0px 0px 6px #ccc; /* FF3.5+ */
+    -webkit-box-shadow: 0px 0px 6px #ccc; /* Saf3.0+, Chrome */
+    box-shadow: 0px 0px 6px #ccc; /* Opera 10.5, IE 9.0 */
+    filter:  progid:DXImageTransform.Microsoft.dropshadow(OffX=0px, OffY=0px, Color='#cccccc'); /* IE6,IE7 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=0px, OffY=0px, Color='#cccccc')"; /* IE8 */
+  }
+  #config-desc {
+    border-bottom: 1px dashed #147;
+    padding: 0px 0px 5px 5px;
+    margin: 0px 0px 10px;
+  }
+  #config input[type=radio] {
+    margin: 0px 6px 6px 10px;
+  }
+  #proxy-input {
+    font-size: 14px;
+    margin-left: 15px;
+    vertical-align: middle;
+  }
+  #proxy-input input {
+    padding: 0px;
+  }
+  #config-submit {
+    font-size: 12px;
+    margin: 20px 0px 0px 25px;
+  }
+  #config-submit button {
+    background-color: #369;
+    border: 1px solid #147;
+    color: #eee;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 6px 10px;
+    -moz-border-radius: 6px; /* FF1+ */
+    -webkit-border-radius: 6px; /* Saf3+, Chrome */
+    border-radius: 6px; /* Opera 10.5, IE 9 */
+  }
+</style>
 {%endblock%}
 
 {%block deferred_script%}
 <script src="/facebox/facebox.js"></script>
 <script src="{{media_url}}changelog.js"></script>
 <script>
-  function getPacUrl() {
-  	var name = $("input[@name='name']:checked").val();
-    if(name != "custom")
-	  return name;
-    var host = $('#host').val();
-    var port = $('#port').val();
-    if(host && port)
-      return $('#type').val().toLowerCase()+"/"+host+"/"+port;
-  }
   $(document).ready(function() {
 	loadChangelog($('#changelog')[0],'gfwlist',3);
 	$('#changelog').append('<a href="/changelog/gfwlist">更多...</a>');
@@ -32,30 +71,28 @@
 {%endblock%}
 
 {%block main%}
-<form name="form" action="/pac/" method="get" target="post" style="background-color:#C8E8F3;padding:1em;width:350px;">
-  <iframe name="post" style="display:none;width:0;height:0"></iframe>
-  请选择你使用的代理
-  <div>
-    {% for item in commonProxy %}
-    <input type="radio" name="name" value="{{ item.0 }}" onclick="document.getElementById('proxy-info').style.visibility='hidden'"/>{{ item.1 }}<br/>
-    {% endfor %}
-    <input type="radio" name="name" value="custom" checked onclick="document.getElementById('proxy-info').style.visibility='visible'"/>其它
-  </div>
-  <div id="proxy-info">
-    <select id="type" name="type">
+<form id="config" action="/pac/" method="get" target="post-frame">
+  <iframe name="post-frame" style="display:none;width:0px;height:0px;"></iframe>
+  <div id="config-desc"><span class="tooltip" title="PAC文件本身并无翻墙功能，请<em>配合代理工具使用</em>">请选择你使用的代理</span></div>
+  {% for item in commonProxy %}
+  <input type="radio" name="name" value="{{item.0}}" onclick="$('#proxy-input').hide()">{{item.1}}<br>
+  {% endfor %}
+  <input type="radio" name="name" value="custom" checked onclick="$('#proxy-input').show()">其它
+  <span id="proxy-input">
+    <select name="type">
       <option value="PROXY">HTTP</option>
       <option value="SOCKS">SOCKS</option>
     </select>
-    <input type="text" id="host" name="host" size="16" value="127.0.0.1"/>:
-    <input type="text" id="port" name="port" size="5"/>
+    <input name="host" placeholder="IP / 域名" value="127.0.0.1" size="15"> :
+    <input type="number" min="0" max="65535" name="port" placeholder="端口" size="5">
+  </span>
+  <div id="config-submit">
+    <button type="button" class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）"
+      onclick="var u=getPacUrl(); if(u) $.facebox({ajax:'/usage?u='+u});">获取PAC地址</button> 或
+    <a class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新"
+      href="javascript:if(getPacUrl()) {$('#config').submit(); $.facebox({ajax:'/usage'});}">下载PAC文件</a>
   </div>
-  <br/>
-  <button type="button" onclick="if(getPacUrl()) { submit(); $.facebox({ ajax: '/usage' }); }">下载PAC文件</button>
-  或
-  <button type="button" onclick="u=getPacUrl(); if(u) $.facebox({ ajax: '/usage?u='+u })">获取在线版本</button>
 </form>
-<p>请注意PAC文件本身并无翻墙功能，<b>需要配合翻墙工具使用</b></p>
-<p>Firefox用户可安装<a href="http://www.autoproxy.org/">AutoProxy</a>插件获得更多功能</p>
 {%endblock%}
 
 {%block sidebar%}
