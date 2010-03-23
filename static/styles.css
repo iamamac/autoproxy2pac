@@ -1,0 +1,97 @@
+body {
+    font-family: 'Lucida Grande', Tahoma, Arial, 'Microsoft YaHei', STHeiTi, simsun, sans-serif;
+}
+
+a {
+    color: #369;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #669;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#page {
+    width: 800px;
+    margin: auto;
+}
+
+#header {
+    display: block;
+    margin-bottom: 30px;
+}
+
+#logo {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 40px;
+    font-weight: normal;
+    line-height: 1.4;
+    border-bottom: 2px solid #444;
+    margin: 0px;
+}
+
+#logo a {
+    color: black;
+    text-decoration: none;
+}
+
+#tagline {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 8px 0px 0px 0px;
+}
+
+#navigation {
+    font-size: 18px;
+    float: right;
+    margin-top: 22px;
+    width: 480px;
+}
+
+#navigation ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#navigation li {
+    display: inline;
+    margin: 0px 12px;
+}
+
+#navigation a {
+    color: #444;
+    text-decoration: none;
+}
+
+#main {
+    float: left;
+    width: 480px;
+}
+
+#sidebar {
+    float: right;
+    width: 290px;
+}
+
+#footer {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    padding: 10px 0px 20px 0px;
+}
+
+#footer #poweredby {
+    margin-left: 50px;
+}
+
+#footer #poweredby a {
+    margin-left: 8px;
+}
