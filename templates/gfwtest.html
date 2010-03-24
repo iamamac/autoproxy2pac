@@ -2,35 +2,57 @@
 
 {%block title1%}GFW Test{%endblock%}
 
+{%block css_and_script%}
+<style>
+  #content {
+    font-size: 14px;
+    text-align: center;
+    height: 260px;
+  }
+  #url-form {
+    margin: 60px 0px 30px;
+  }
+  #url {
+    font-size: 17px;
+    width: 500px;
+  }
+  #url-form button {
+    font-size: 15px;
+    height: 26px;
+  }
+  #status a {
+    margin: 0px 10px;
+  }
+</style>
+{%endblock%}
+
 {%block deferred_script%}
 <script src="/gfwtest.js"></script>
 <script>
   function testUrl() {
-    url = document.test.url.value;
-    if(isBlockedByGFW(url))
-      document.getElementById('status').src='static/block.jpg';
-    else
-      document.getElementById('status').src='static/pass.png';
+    var url = $('#url').val();
+    if(!url) return;
+    if(!/https?:\/\//.test(url)) { url = 'http://'+url; $('#url').val(url); }
+    $('<img width="150" height="150">').attr(isBlockedByGFW(url) ? {src:'{{media_url}}block.jpg', alt:'撞墙'} : {src:'{{media_url}}pass.png', alt:'正常'}).appendTo('#status');
+    $('#status').append('<br>');
+    $('<a>访问</a>').attr('href',url).appendTo('#status');
+    $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo('#status');
+    $('#status').fadeIn();
   }
-  $(document).ready(function() {
-    document.test.url.focus();
-    testUrl();
-  });
+  $('#url').keypress(function(){$('#status').fadeOut('slow',function(){$(this).empty();});})
+  $('#url').val(window.location.hash.slice(1) || 'http://www.google.com/');
+  testUrl();
 </script>
 {%endblock%}
 
-{%block header%}
-<font size="-1"><a href="/">&lt;&lt; Home</a></font>
+{%block tagline%}
+查看网站是否撞墙
 {%endblock%}
 
 {%block content%}
-<center>
-<h1>GFW Test</h1>
-<form name="test" onsubmit="testUrl();return false">
-  <input type="text" name="url" size="60" value="http://" style="font-size:17px;margin-bottom:0.2em;vertical-align:bottom"/>
-  <button type="button" onclick="testUrl()" style="font-size:15px;height:28px;margin:0.2em">Test</button>
+<form id="url-form" onsubmit="testUrl();return false;">
+  <input type="url" id="url" autofocus>
+  <button type="submit">测试</button>
 </form>
-<img id="status" width="150" height="150"/>
-</center>
-<p align="right">If you find incorrect status, please report <a href="https://jimmyxu.com/ap/">here</a></p>
+<div id="status"></div>
 {%endblock%}
