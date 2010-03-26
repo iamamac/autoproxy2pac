@@ -15,6 +15,10 @@ a:hover {
     text-decoration: underline;
 }
 
+img {
+    border-style: none;
+}
+
 #page {
     width: 800px;
     margin: auto;
@@ -74,8 +78,43 @@ a:hover {
 }
 
 #sidebar {
+    font-size: 12px;
     float: right;
     width: 290px;
+}
+
+#sidebar h1 {
+    font-size: 14px;
+}
+
+#changelog h1 img {
+    vertical-align: top;
+}
+
+div.feedburnerFeedBlock {
+    font-size: 11px;
+    display: none;
+}
+
+div.feedburnerFeedBlock > ul {
+    list-style-type: none;
+    padding: 0px;
+}
+
+div.feedburnerFeedBlock > ul > li {
+    margin-top: 15px;
+}
+
+div.feedburnerFeedBlock span.headline {
+    font-size: 12px;
+}
+
+div.feedburnerFeedBlock > ul > li > div {
+    margin-top: 5px;
+}
+
+#creditfooter {
+    display: none;
 }
 
 #footer {

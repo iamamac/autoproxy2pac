@@ -9,6 +9,7 @@ import settings
 def render(template_, **param):
     template_path = os.path.join(settings.TEMPLATE_DIR, template_)
     template_dict = {
+        'gfwlist_rss': '/changelog/gfwlist.rss',
         'is_dev': settings.DEBUG,
         'language': 'zh-CN',
         'media_url': settings.MEDIA_URL,

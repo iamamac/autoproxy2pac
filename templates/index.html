@@ -4,7 +4,6 @@
 
 {%block css_and_script%}
 <link rel="stylesheet" media="screen" href="/facebox/facebox.css">
-<link rel="stylesheet" href="{{media_url}}changelog.css">
 <style>
   #config {
     font-size: 16px;
@@ -57,13 +56,6 @@
 
 {%block deferred_script%}
 <script src="/facebox/facebox.js"></script>
-<script src="{{media_url}}changelog.js"></script>
-<script>
-  $(document).ready(function() {
-	loadChangelog($('#changelog')[0],'gfwlist',3);
-	$('#changelog').append('<a href="/changelog/gfwlist">更多...</a>');
-  });
-</script>
 {%endblock%}
 
 {%block tagline%}
@@ -93,14 +85,4 @@
       href="javascript:if(getPacUrl()) {$('#config').submit(); $.facebox({ajax:'/usage'});}">下载PAC文件</a>
   </div>
 </form>
-{%endblock%}
-
-{%block sidebar%}
-<div>
-  <div style="font-weight:bold">
-    gfwlist 近期更新内容
-    <a href="{{gfwlistRss}}" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon16x16.png" alt="(RSS)" style="vertical-align:middle;border:0"/></a>
-  </div>
-  <div id="changelog" style="font-size:12px">加载中...</div>
-</div>
 {%endblock%}
