@@ -68,10 +68,10 @@
 
     <footer id="footer">
       {%block footer%}
+      <a href="https://autoproxy.org/">AutoProxy</a> &bull;
+      <a href="https://code.google.com/p/autoproxy-gfwlist/">gfwList</a> &bull;
       <a href="http://github.com/iamamac/autoproxy2pac/issues">问题反馈</a> &bull;
-      <a href="http://www.google.com/profiles/911mxl">联系作者</a> &bull;
-      <a href="https://twitter.com/mengxl">Twitter</a> &bull;
-      <a href="http://code.google.com/p/autoproxy-gfwlist/">gfwList</a> &bull;
+      <a href="https://www.google.com/profiles/911mxl">联系作者</a> &bull;
       <a href="/gfwtest.js">gfwtest.js</a>
       <span id="poweredby">
         <a href="http://validator.w3.org/check?uri=referer">HTML5</a>
@@ -86,10 +86,15 @@
   <script src="{{media_url}}jquery.tipTip.minified.js"></script>
   <script>$('.tooltip').tipTip();</script>
 
+  <!-- Share Badge START -->
+  <script src="http://china-addthis.googlecode.com/svn/trunk/addthis.js" charset="utf-8"></script>
+  <span class="addthis_org_cn" style="display:none;"><a href="http://addthis.org.cn/share/" i="31|28|21|22|23|11|30|27|72|73|74" side="right" top="150" abordercolor="#777" aheadbgcolor="#ddd" title="分享 AutoProxy2PAC 给朋友"><img src="{{media_url}}share_badge.gif" alt="分享" align="absmiddle"></a></span>
+  <!-- Share Badge END -->
+
   <!-- Twitter Follow Badge START -->
   <script src='http://files.go2web20.net/twitterbadge/1.0/badge.js'></script><script>
-    tfb.account = 'mengxl'; tfb.label = 'follow-me'; tfb.color = '#777';
-    tfb.side = 'r'; tfb.top = 136; tfb.showbadge();
+    tfb.account = 'mengxl'; tfb.label = 'my-twitter'; tfb.color = '#777';
+    tfb.side = 'r'; tfb.top = 300; tfb.showbadge();
   </script>
   <!-- Twitter Follow Badge END -->
 </body>
