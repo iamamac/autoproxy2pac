@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
-import django.utils.simplejson as json
 from django.utils.feedgenerator import DefaultFeed as Feed
 
 from models import RuleList, ChangeLog
@@ -44,35 +42,6 @@ def generateLogFromDiff(diff):
 
     return log
 
-class JsonHandler(webapp.RequestHandler):
-    @webcached('public,max-age=600')  # 10min
-    def get(self, name):
-        name = name.lower()
-        rules = RuleList.getList(name)
-        if rules is None:
-            self.error(404)
-            return
-
-        self.lastModified(rules.date)
-
-        start = int(self.request.get('start', 0))
-        fetchNum = start + int(self.request.get('num', 50))
-        if fetchNum > 1000:
-            self.error(412)
-            return
-
-        logs = memcache.get('changelog/%s' % name)
-        if logs is None or len(logs) < fetchNum:
-            logs = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(fetchNum)
-            memcache.add('changelog/%s' % name, logs)
-
-        changes = [{'time'   : (l.date + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M"),
-                    'add'    : l.add,
-                    'remove' : l.remove} for l in logs]
-
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(json.dumps(changes[start:fetchNum]))
-
 class FeedHandler(webapp.RequestHandler):
     @webcached()
     def get(self, name):
@@ -97,11 +66,11 @@ class FeedHandler(webapp.RequestHandler):
             self.error(412)
             return
 
-        logs = memcache.get('changelog/%s.log' % name)
+        logs = memcache.get('changelog/%s' % name)
         if logs is None or len(logs) < fetchNum:
             diff = ChangeLog.gql("WHERE ruleList = :1 ORDER BY date DESC", rules).fetch(fetchNum)
             logs = map(generateLogFromDiff, diff)
-            memcache.add('changelog/%s.log' % name, logs)
+            memcache.add('changelog/%s' % name, logs)
 
         self.response.headers['Content-Type'] = Feed.mime_type
 
@@ -118,15 +87,3 @@ class FeedHandler(webapp.RequestHandler):
                        pubdate=item['timestamp'])
 
         f.write(self.response.out, 'utf-8')
-
-class HtmlHandler(webapp.RequestHandler):
-    def get(self, name):
-        rules = RuleList.getList(name.lower())
-        if rules is None:
-            self.error(404)
-            return
-
-        self.response.out.write(template.render('changelog.html',
-            name=name,
-            rss=self.request.relative_url('%s.rss' % name)
-        ))

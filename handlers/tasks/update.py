@@ -21,5 +21,4 @@ class Handler(webapp.RequestHandler):
                 if MAIN_SERVER:
                     if name == 'gfwlist': memcache.delete('/gfwtest.js', namespace='response')
                     memcache.delete('changelog/%s' % name)
-                    memcache.delete('changelog/%s.log' % name)
                     taskqueue.add(url='/tasks/feed_ping', params={'url':'http://feeds.feedburner.com/%s' % name})

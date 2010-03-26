@@ -28,9 +28,7 @@ if MAIN_SERVER: urlMapping += [
     ('/pac/', pac_generate.DownloadHandler),
     ('/gfwtest.js', gfwtest.JsLibHandler),
     ('/gfwtest', gfwtest.TestPageHandler),
-    ('/changelog/(.*)\.json', changelog.JsonHandler),
     ('/changelog/(.*)\.rss', changelog.FeedHandler),
-    ('/changelog/(.*)', changelog.HtmlHandler),
     ('/tasks/feed_ping', tasks.feedping.FeedBurnerHandler),
 ]
 application = webapp.WSGIApplication(urlMapping, DEBUG)
