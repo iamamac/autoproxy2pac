@@ -7,7 +7,6 @@
   #content {
     font-size: 14px;
     text-align: center;
-    height: 260px;
   }
   #url-form {
     margin: 60px 0px 30px;
@@ -23,6 +22,9 @@
   #status a {
     margin: 0px 10px;
   }
+  #example a {
+    margin-left: 10px;
+  }
 </style>
 {%endblock%}
 
@@ -33,6 +35,7 @@
     var url = $('#url').val();
     if(!url) return;
     if(!/https?:\/\//.test(url)) { url = 'http://'+url; $('#url').val(url); }
+    gfwtestLastHash = window.location.hash = '#'+url;
     var s = $('#status').empty();
     $('<img width="150" height="150">').attr(isBlockedByGFW(url) ? {src:'{{media_url}}block.jpg', alt:'撞墙'} : {src:'{{media_url}}pass.png', alt:'正常'}).appendTo(s);
     s.append('<br>');
@@ -40,8 +43,11 @@
     $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo(s);
     s.fadeIn();
   }
-  $('#url').val(window.location.hash.slice(1) || 'http://www.google.com/');
-  testUrl();
+  gfwtestLastHash = ''; setInterval(function() { if(window.location.hash != gfwtestLastHash) {
+    gfwtestLastHash = window.location.hash;
+    $('#url').val(window.location.hash.slice(1));
+    testUrl();
+  }},100);
 </script>
 {%endblock%}
 
@@ -51,8 +57,17 @@
 
 {%block content%}
 <form id="url-form" onsubmit="testUrl();return false;">
-  <input type="url" id="url" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
+  <input type="url" id="url" value="http://" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
   <button type="submit">测试</button>
 </form>
-<div id="status"></div>
+<div style="height:200px;"><div id="status"></div></div>
+<p id="example">试试这些:
+  <a href="#http://www.google.com/search">Google</a>
+  <a href="#http://www.facebook.com/">Facebook</a>
+  <a href="#http://www.youtube.com/">YouTube</a>
+  <a href="#http://twitter.com/">Twitter</a>
+  <a href="#http://wikipedia.org/">Wikipedia</a>
+  <a href="#http://www.blogger.com/">Blogger</a>
+  <a href="#http://picasaweb.google.com/">Picasa</a>
+</p>
 {%endblock%}
