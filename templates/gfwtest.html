@@ -33,13 +33,13 @@
     var url = $('#url').val();
     if(!url) return;
     if(!/https?:\/\//.test(url)) { url = 'http://'+url; $('#url').val(url); }
-    $('<img width="150" height="150">').attr(isBlockedByGFW(url) ? {src:'{{media_url}}block.jpg', alt:'撞墙'} : {src:'{{media_url}}pass.png', alt:'正常'}).appendTo('#status');
-    $('#status').append('<br>');
-    $('<a>访问</a>').attr('href',url).appendTo('#status');
-    $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo('#status');
-    $('#status').fadeIn();
+    var s = $('#status').empty();
+    $('<img width="150" height="150">').attr(isBlockedByGFW(url) ? {src:'{{media_url}}block.jpg', alt:'撞墙'} : {src:'{{media_url}}pass.png', alt:'正常'}).appendTo(s);
+    s.append('<br>');
+    $('<a>访问</a>').attr('href',url).appendTo(s);
+    $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo(s);
+    s.fadeIn();
   }
-  $('#url').keypress(function(){$('#status').fadeOut('slow',function(){$(this).empty();});})
   $('#url').val(window.location.hash.slice(1) || 'http://www.google.com/');
   testUrl();
 </script>
@@ -51,7 +51,7 @@
 
 {%block content%}
 <form id="url-form" onsubmit="testUrl();return false;">
-  <input type="url" id="url" autofocus>
+  <input type="url" id="url" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
   <button type="submit">测试</button>
 </form>
 <div id="status"></div>
