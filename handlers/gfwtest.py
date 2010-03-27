@@ -23,8 +23,8 @@ eval(decode64("%(encodedFunc)s"))
 '''
 
 jsFuncTemplate = '''function isBlockedByGFW(url) {
-  %(proxyVar)s = true;
-  %(defaultVar)s = false;
+  var %(proxyVar)s = true;
+  var %(defaultVar)s = false;
 
 %(ruleListCode)s
 

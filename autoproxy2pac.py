@@ -36,8 +36,8 @@ defaultPacTemplate = '''/*
  *  Last update: %(ruleListDate)s
  */
 function FindProxyForURL(url, host) {
-  %(proxyVar)s = "%(proxyString)s";
-  %(defaultVar)s = "%(defaultString)s";
+  var %(proxyVar)s = "%(proxyString)s";
+  var %(defaultVar)s = "%(defaultString)s";
 %(customCodePre)s
   %(rulesBegin)s
 %(ruleListCode)s
