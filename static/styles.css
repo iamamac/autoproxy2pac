@@ -15,7 +15,7 @@ a:hover {
     text-decoration: underline;
 }
 
-img {
+a img {
     border-style: none;
 }
 
@@ -85,6 +85,10 @@ img {
 
 #sidebar h1 {
     font-size: 14px;
+}
+
+#changelog h1 a {
+    text-decoration: none;
 }
 
 #changelog h1 img {
