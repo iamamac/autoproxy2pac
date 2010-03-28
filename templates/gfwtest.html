@@ -36,8 +36,7 @@
     if(!url) return;
     if(!/https?:\/\//.test(url)) { url = 'http://'+url; $('#url').val(url); }
     var s = $('#status').empty();
-    $('<img width="150" height="150">').attr(isBlockedByGFW(url) ? {src:'{{media_url}}block.jpg', alt:'撞墙'} : {src:'{{media_url}}pass.png', alt:'正常'}).appendTo(s);
-    s.append('<br>');
+    s.append($(isBlockedByGFW(url)?'#prefetch .block':'#prefetch .pass').clone()).append('<br>');
     $('<a>访问</a>').attr('href',url).appendTo(s);
     $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo(s);
     s.fadeIn();
@@ -64,7 +63,13 @@
   <input type="url" id="url" value="http://" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
   <button type="submit">测试</button>
 </form>
-<div style="height:200px;"><div id="status"></div></div>
+<div style="height:200px;">
+  <div id="status"></div>
+  <div id="prefetch" style="display:none;">
+    <img class="pass" src="{{media_url}}pass.png" width="150" height="150" alt="正常">
+    <img class="block" src="{{media_url}}block.png" width="150" height="150" alt="撞墙">
+  </div>
+</div>
 <p id="example">试试这些:
   <a href="#http://www.google.com/search?q=胡萝卜">Google</a>
   <a href="#http://www.facebook.com/">Facebook</a>
