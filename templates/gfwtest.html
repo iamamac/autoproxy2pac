@@ -35,10 +35,15 @@
     var url = $('#url').val();
     if(!url) return;
     if(!/https?:\/\//.test(url)) { url = 'http://'+url; $('#url').val(url); }
+    var b = isBlockedByGFW(url);
     var s = $('#status').empty();
-    s.append($(isBlockedByGFW(url)?'#prefetch .block':'#prefetch .pass').clone()).append('<br>');
-    $('<a>访问</a>').attr('href',url).appendTo(s);
-    $('<a>状态有误</a>').attr('href','https://jimmyxu.com/ap/?url='+url).appendTo(s);
+    s.append($('#prefetch .'+(b?'block':'pass')).clone()).append('<br>');
+    $('<a class="tooltip">访问</a>').attr({ href:url, title:b?'该地址已被 GFW 封锁，请在翻墙工具的帮助下访问':'' }).appendTo(s);
+    $('<a class="tooltip">状态有误</a>').attr({
+      href:'https://jimmyxu.com/ap/?url='+url,
+      title:'被墙网站列表系人工维护，若您发现此地址'+(b?'可以直接访问（未借助翻墙工具）':'无法访问（而翻墙可打开）')+'，请告诉我们，谢谢'
+    }).appendTo(s);
+    if($().tipTip) s.find('.tooltip').tipTip();
     s.fadeIn();
   }
   $('#url-form').submit(function() {
@@ -51,6 +56,10 @@
     $('#url').val(decodeURI(window.location.hash.slice(1)));
     testUrl();
   }},100);
+  $(function() { $('.google').tipTip({
+    activation:'click', keepAlive:true,
+    content:'查看 Google 官方发布的<a href="http://www.google.cn/prc/report.html">各服务状态</a>'
+  })});
 </script>
 {%endblock%}
 
@@ -71,12 +80,12 @@
   </div>
 </div>
 <p id="example">试试这些:
-  <a href="#http://www.google.com/search?q=胡萝卜">Google</a>
+  <a href="#http://www.google.com/search?q=胡萝卜" class="google">Google</a>
   <a href="#http://www.facebook.com/">Facebook</a>
-  <a href="#http://www.youtube.com/">YouTube</a>
+  <a href="#http://www.youtube.com/" class="google">YouTube</a>
   <a href="#http://twitter.com/">Twitter</a>
   <a href="#http://wikipedia.org/">Wikipedia</a>
-  <a href="#http://www.blogger.com/">Blogger</a>
-  <a href="#http://picasaweb.google.com/">Picasa</a>
+  <a href="#http://www.blogger.com/" class="google">Blogger</a>
+  <a href="#http://picasaweb.google.com/" class="google">Picasa</a>
 </p>
 {%endblock%}

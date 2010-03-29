@@ -1,4 +1,4 @@
-{%extends "base.html"%}
+{%extends "2column.html"%}
 
 {%block title%}AutoProxy2PAC - 全平台智能代理{%endblock%}
 
@@ -38,7 +38,7 @@
     font-size: 12px;
     margin: 20px 0px 0px 25px;
   }
-  #config-submit button {
+  #pac-geturl {
     background-color: #369;
     border: 1px solid #147;
     color: #eee;
@@ -52,8 +52,12 @@
 </style>
 {%endblock%}
 
-{%block deferred_script%}
+{%block deferred_script2%}
 <script src="/facebox/facebox.js"></script>
+<script>
+  $('#pac-geturl').click(function() {var u=getPacUrl(); if(u) $.facebox({ajax:'/usage?u='+u});});
+  $('#pac-download').click(function() {if(getPacUrl()) {$('#config').submit(); $.facebox({ajax:'/usage'});}});
+</script>
 {%endblock%}
 
 {%block tagline%}
@@ -77,10 +81,8 @@
     <input type="number" min="0" max="65535" name="port" placeholder="端口" size="5">
   </span>
   <div id="config-submit">
-    <button type="button" class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）"
-      onclick="var u=getPacUrl(); if(u) $.facebox({ajax:'/usage?u='+u});">获取PAC地址</button> 或
-    <a class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新"
-      href="javascript:if(getPacUrl()) {$('#config').submit(); $.facebox({ajax:'/usage'});}">下载PAC文件</a>
+    <button type="button" id="pac-geturl" class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）">获取PAC地址</button> 或
+    <a id="pac-download" class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新" href="#">下载PAC文件</a>
   </div>
 </form>
 {%endblock%}

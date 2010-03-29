@@ -1,3 +1,4 @@
+/* Two-column template */
 function loadChangelog(){
     $('div.feedburnerFeedBlock h3').each(function(){
         $(this).next('ul').children('li').each($(this).text() != '规则调整' ? function(){

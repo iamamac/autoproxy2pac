@@ -72,6 +72,25 @@ a img {
     text-decoration: none;
 }
 
+#footer {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    padding: 10px 0px 20px 0px;
+}
+
+#footer #poweredby {
+    margin-left: 50px;
+}
+
+#footer #poweredby a {
+    margin-left: 8px;
+}
+
+/* Two-column template */
 #main {
     float: left;
     width: 480px;
@@ -119,22 +138,4 @@ div.feedburnerFeedBlock > ul > li > div {
 
 #creditfooter {
     display: none;
-}
-
-#footer {
-    display: block;
-    font-size: 12px;
-    color: #777;
-    text-align: center;
-    border-top: 1px solid #ccc;
-    margin-top: 20px;
-    padding: 10px 0px 20px 0px;
-}
-
-#footer #poweredby {
-    margin-left: 50px;
-}
-
-#footer #poweredby a {
-    margin-left: 8px;
 }
