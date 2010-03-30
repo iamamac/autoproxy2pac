@@ -10,7 +10,8 @@ class MainHandler(webapp.RequestHandler):
     def get(self):
         self.lastModified(template.mtime('index.html'))
         self.response.out.write(template.render('index.html',
-            commonProxy=((k, v[0]) for k, v in PRESET_PROXIES.items()),
+            presetProxies=((k, v[0]) for k, v in PRESET_PROXIES.items()),
+            pacUrlPrefix=PAC_URL_PREFIX,
         ))
 
 class UsageHandler(webapp.RequestHandler):

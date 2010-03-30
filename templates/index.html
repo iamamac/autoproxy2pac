@@ -56,7 +56,12 @@
 <script src=/facebox/facebox.js></script>
 <script>
   $('#pac-geturl').click(function() {var u=getPacUrl(); if(u) $.facebox({ajax:'/usage?u='+u});});
-  $('#pac-download').click(function() {if(getPacUrl()) {$('#config').submit(); $.facebox({ajax:'/usage'});}});
+  $('#pac-download').click(function() {
+    var u = getPacUrl();
+    if(!u) return false;
+    $('#pac-download').attr('href','/{{pacUrlPrefix}}'+u+'?download');
+    $.facebox({ajax:'/usage'});
+  });
 </script>
 {%endblock%}
 
@@ -65,10 +70,9 @@
 {%endblock%}
 
 {%block main%}
-<form id=config action=/pac/ method=get target=post-frame>
-  <iframe name=post-frame style="display:none;width:0px;height:0px;"></iframe>
+<form id=config onsubmit="return false">
   <div id=config-desc><span class="tooltip" title="PAC文件本身并无翻墙功能，请<em>配合代理工具使用</em>">请选择你使用的代理</span></div>
-  {% for item in commonProxy %}
+  {% for item in presetProxies %}
   <input type=radio name=name value="{{item.0}}" onclick="$('#proxy-input').hide()">{{item.1}}<br>
   {% endfor %}
   <input type=radio name=name value=custom checked onclick="$('#proxy-input').show()">其它
@@ -82,7 +86,8 @@
   </span>
   <div id=config-submit>
     <button type=button id=pac-geturl class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）">获取PAC地址</button> 或
-    <a id=pac-download class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新" href=#>下载PAC文件</a>
+    <a id=pac-download class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新" href=# target=post-frame>下载PAC文件</a>
   </div>
+  <iframe name=post-frame style="display:none;"></iframe>
 </form>
 {%endblock%}
