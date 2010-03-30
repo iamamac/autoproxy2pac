@@ -21,6 +21,4 @@ class Handler(webapp.RequestHandler):
                 if MAIN_SERVER:
                     if name == 'gfwlist': memcache.delete('/gfwtest.js', namespace='response')
                     memcache.delete('changelog/%s' % name)
-                    # Give task a name to ensure it is only enqueued once
-                    # @see: http://blog.notdot.net/2010/03/Task-Queue-task-chaining-done-right
-                    taskqueue.add(name='feed-ping-%s' % name, url='/tasks/feed_ping', params={'url':'http://feeds.feedburner.com/%s' % name})
+                    taskqueue.add(url='/tasks/feed_ping', params={'url':'http://feeds.feedburner.com/%s' % name})
