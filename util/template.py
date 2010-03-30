@@ -13,6 +13,7 @@ def render(template_, **param):
         'is_dev': settings.DEBUG,
         'language': 'zh-CN',
         'media_url': settings.MEDIA_URL,
+        'url_protocol': 'https://' if os.getenv('HTTPS') == 'on' else 'http://',
     }
     template_dict.update(param)
     return template.render(template_path, template_dict, debug=settings.TEMPLATE_DEBUG)
