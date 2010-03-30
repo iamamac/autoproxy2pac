@@ -15,6 +15,10 @@ a:hover {
     text-decoration: underline;
 }
 
+a img {
+    border-style: none;
+}
+
 #page {
     width: 800px;
     margin: auto;
@@ -68,16 +72,6 @@ a:hover {
     text-decoration: none;
 }
 
-#main {
-    float: left;
-    width: 480px;
-}
-
-#sidebar {
-    float: right;
-    width: 290px;
-}
-
 #footer {
     display: block;
     font-size: 12px;
@@ -94,4 +88,54 @@ a:hover {
 
 #footer #poweredby a {
     margin-left: 8px;
+}
+
+/* Two-column template */
+#main {
+    float: left;
+    width: 480px;
+}
+
+#sidebar {
+    font-size: 12px;
+    float: right;
+    width: 290px;
+}
+
+#sidebar h1 {
+    font-size: 14px;
+}
+
+#changelog h1 a {
+    text-decoration: none;
+}
+
+#changelog h1 img {
+    vertical-align: top;
+}
+
+div.feedburnerFeedBlock {
+    font-size: 11px;
+    display: none;
+}
+
+div.feedburnerFeedBlock > ul {
+    list-style-type: none;
+    padding: 0px;
+}
+
+div.feedburnerFeedBlock > ul > li {
+    margin-top: 15px;
+}
+
+div.feedburnerFeedBlock span.headline {
+    font-size: 12px;
+}
+
+div.feedburnerFeedBlock > ul > li > div {
+    margin-top: 5px;
+}
+
+#creditfooter {
+    display: none;
 }

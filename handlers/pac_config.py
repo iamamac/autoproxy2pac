@@ -11,7 +11,6 @@ class MainHandler(webapp.RequestHandler):
         self.lastModified(template.mtime('index.html'))
         self.response.out.write(template.render('index.html',
             commonProxy=((k, v[0]) for k, v in PRESET_PROXIES.items()),
-            gfwlistRss=self.request.relative_url('/changelog/gfwlist.rss'),
         ))
 
 class UsageHandler(webapp.RequestHandler):
