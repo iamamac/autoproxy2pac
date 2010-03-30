@@ -8,16 +8,12 @@
     font-size: 14px;
     text-align: center;
   }
-  #url-form {
+  #content form {
     margin: 60px 0px 30px;
   }
   #url {
     font-size: 17px;
     width: 500px;
-  }
-  #url-form button {
-    font-size: 15px;
-    height: 26px;
   }
   #status a {
     margin: 0px 10px;
@@ -29,7 +25,7 @@
 {%endblock%}
 
 {%block deferred_script%}
-<script src="/gfwtest.js"></script>
+<script src=/gfwtest.js></script>
 <script>
   function testUrl() {
     var url = $('#url').val();
@@ -46,7 +42,7 @@
     if($().tipTip) s.find('.tooltip').tipTip();
     s.fadeIn();
   }
-  $('#url-form').submit(function() {
+  $('#content form').submit(function() {
     testUrl();
     var url = encodeURI($('#url').val()).replace(/%25/g,'%'); /* Fix Chinese characters for Safari */
     gfwtestLastHash = window.location.hash = '#'+url;
@@ -68,18 +64,17 @@
 {%endblock%}
 
 {%block content%}
-<form id="url-form" onsubmit="return false">
-  <input type="url" id="url" value="http://" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
-  <button type="submit">测试</button>
+<form onsubmit="return false">
+  <input type=url id=url placeholder="请输入待测网址，回车确定" autofocus onkeydown="if(event.keyCode!=13) {$('#status').fadeOut('slow');}">
 </form>
 <div style="height:200px;">
-  <div id="status"></div>
-  <div id="prefetch" style="display:none;">
-    <img class="pass" src="{{media_url}}pass.png" width="150" height="150" alt="正常">
-    <img class="block" src="{{media_url}}block.png" width="150" height="150" alt="撞墙">
+  <div id=status></div>
+  <div id=prefetch style="display:none;">
+    <img class="pass" src={{media_url}}pass.png width=150 height=150 alt=正常>
+    <img class="block" src={{media_url}}block.png width=150 height=150 alt=撞墙>
   </div>
 </div>
-<p id="example">试试这些:
+<p id=example>试试这些:
   <a href="#http://www.google.com/search?q=胡萝卜" class="google">Google</a>
   <a href="#http://www.facebook.com/">Facebook</a>
   <a href="#http://www.youtube.com/" class="google">YouTube</a>

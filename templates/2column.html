@@ -1,19 +1,19 @@
 {%extends "base.html"%}
 
 {%block content%}
-<div id="main">
+<div id=main>
   {%block main%}BODY GOES HERE{%endblock%}
 </div>
 
-<aside id="sidebar">
+<aside id=sidebar>
   {%block sidebar%}
-  <section id="changelog">
+  <section id=changelog>
     <h1>gfwlist 更新记录
       <a href="{{gfwlist_rss}}" class="tooltip" title="订阅 gfwlist 更新情况（推荐使用 Google Reader，实时更新无延迟）">
-        <img src="http://feeds.feedburner.com/~fc/gfwlist?bg=777777&amp;fg=ffffff&amp;anim=0" height="26" width="88" alt="">
-        <img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" height="19" width="19" alt="订阅">
+        <img src="http://feeds.feedburner.com/~fc/gfwlist?bg=777777&amp;fg=ffffff&amp;anim=0" height=26 width=88>
+        <img src="http://www.feedburner.com/fb/images/pub/feed-icon32x32.png" height=19 width=19 alt=订阅>
       </a><a href="http://feedburner.google.com/fb/a/mailverify?uri=gfwlist&amp;loc=en_US" class="tooltip" title="通过电子邮件订阅更新情况，每天最多一封">
-        <img src="{{media_url}}feed_email.gif" height="19" width="19" alt="邮件订阅">
+        <img src={{media_url}}feed_email.gif height=19 width=19 alt=邮件订阅>
       </a>
     </h1>
     <p>加载中...</p>
@@ -27,6 +27,6 @@
 {%block deferred_script%}
 {%block deferred_script2%}{%endblock%}
 
-<script src="http://feeds.feedburner.com/gfwlist?format=sigpro&nItems=3&displayTitle=false"></script>
+<script src="http://feeds.feedburner.com/gfwlist?format=sigpro&amp;nItems=3&amp;displayTitle=false"></script>
 <script>loadChangelog();</script>
 {%endblock%}
