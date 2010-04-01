@@ -21,7 +21,7 @@ handlers:
   script: main.py
   login: admin
 
-- url: /admin(/.*)?
+- url: /_ah/admin(/.*)?
   script: $PYTHON_LIB/google/appengine/ext/admin
   login: admin
 
@@ -31,3 +31,12 @@ handlers:
 
 - url: .*
   script: main.py
+
+admin_console:
+  pages:
+
+  - name: Interactive Console
+    url: /_ah/admin/interactive
+
+  - name: Memcache Viewer
+    url: /_ah/admin/memcache
