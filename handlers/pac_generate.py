@@ -52,9 +52,15 @@ class Handler(webapp.RequestHandler):
 
         if RATELIMIT_ENABLED and self.isRateLimited(): return
 
-        configs = { 'proxyString'   : proxyString,
-                    'defaultString' : 'DIRECT' }
-        if urlpart == 'privoxy': configs['customCodePost'] = privoxyConfCode
+        customRules = self.request.get_all('c')
+        customJs = autoproxy2pac.rule2js('\n'.join([''] + customRules))
+
+        if urlpart == 'privoxy': customJs = privoxyConfCode + customJs
+        configs = {
+            'proxyString': proxyString,
+            'defaultString': 'DIRECT',
+            'customCodePre': customJs,
+        }
         pac = autoproxy2pac.generatePac(rules.toDict(), configs, autoproxy2pac.defaultPacTemplate)
 
         self.response.headers['Content-Type'] = 'application/x-ns-proxy-autoconfig'
