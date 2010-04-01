@@ -2,6 +2,7 @@
 
 import logging
 import re
+from base64 import urlsafe_b64decode
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
@@ -53,6 +54,7 @@ class Handler(webapp.RequestHandler):
         if RATELIMIT_ENABLED and self.isRateLimited(): return
 
         customRules = self.request.get_all('c')
+        customRules += (urlsafe_b64decode(r.encode('ascii')) for r in self.request.get_all('e'))
         customJs = autoproxy2pac.rule2js('\n'.join([''] + customRules))
 
         if urlpart == 'privoxy': customJs = privoxyConfCode + customJs
