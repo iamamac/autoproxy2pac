@@ -55,7 +55,7 @@ class JsLibHandler(webapp.RequestHandler):
         self.response.out.write(generateJs(rules.toDict()))
 
 class TestPageHandler(webapp.RequestHandler):
-    @webcached('public,max-age=86400')  # 24h
+    @webcached('public,max-age=86400', 'Cookie')  # 24h
     def get(self):
         self.lastModified(template.mtime('gfwtest.html'))
         self.response.out.write(template.render('gfwtest.html'))

@@ -3,6 +3,7 @@
 import logging
 from functools import wraps
 from google.appengine.api import memcache
+from google.appengine.api import users
 
 from settings import CACHE_ENABLED
 
@@ -46,15 +47,20 @@ class responsecached(object):
 
     @note: Multiple memcache items may be generated using the default key algorithm
     '''
-    def __init__(self, time=0, key=None, namespace='response', cacheableStatus=(200,)):
+    def __init__(self, time=0, key=None, namespace='response', cacheableStatus=(200,), onlyAnonymous=False):
         self.time = time
         self.key = key if key else lambda h, *_: h.request.path_qs
         self.namespace = namespace
         self.cacheableStatus = cacheableStatus
+        self.onlyAnonymous = onlyAnonymous
 
     def __call__(self, f):
         @wraps(f)
         def wrapped(handler, *args):
+            if self.onlyAnonymous and users.get_current_user():
+                f(handler, *args)
+                return
+
             @memcached(self.key, self.time, self.namespace)
             def getResponse(handler, *args):
                 f(handler, *args)

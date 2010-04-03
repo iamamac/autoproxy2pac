@@ -6,6 +6,7 @@ from email.utils import formatdate
 from functools import wraps
 from hashlib import md5
 from types import MethodType
+from google.appengine.api import users
 
 class _ResponseNotModified(Exception):
     pass
@@ -48,9 +49,12 @@ def _validate(handler):
 class webcached(object):
     '''
     Decorator to enable conditional get. Add a lastModified method to the handler
+
+    @param cacheCtrl: A string or a two-element tuple (CC for anonymous, CC for logged in user)
     '''
-    def __init__(self, cacheCtrl='no-cache', genEtag=True):
-        self.cacheCtrl = cacheCtrl
+    def __init__(self, cacheCtrl='no-cache', vary=None, genEtag=True):
+        self.cacheCtrl = (cacheCtrl, cacheCtrl) if isinstance(cacheCtrl, basestring) else cacheCtrl
+        self.vary = vary
         self.genEtag = genEtag
 
     def __call__(self, f):
@@ -61,11 +65,11 @@ class webcached(object):
             try:
                 f(handler, *args)
             except _ResponseNotModified:
-                handler.response.headers['Cache-Control'] = self.cacheCtrl
+                self._setHeader(handler)
                 return
 
             if handler.response.status == 200:
-                handler.response.headers['Cache-Control'] = self.cacheCtrl
+                self._setHeader(handler)
                 if self.genEtag and handler.response.headers.get('ETag') is None:
                     body = handler.response.out.getvalue()
                     if isinstance(body, unicode): body = body.encode('utf-8')
@@ -76,3 +80,7 @@ class webcached(object):
                 del handler.response.headers['ETag']
 
         return wrapped
+
+    def _setHeader(self, handler):
+        handler.response.headers['Cache-Control'] = self.cacheCtrl[1 if users.get_current_user() else 0]
+        if self.vary: handler.response.headers['Vary'] = self.vary

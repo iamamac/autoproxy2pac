@@ -6,7 +6,7 @@ from settings import PAC_URL_PREFIX, PRESET_PROXIES
 from util import template, useragent, webcached
 
 class MainHandler(webapp.RequestHandler):
-    @webcached('public,max-age=3600')  # 1h
+    @webcached(('public,max-age=3600', 'private,max-age=3600'), 'Cookie')  # 1h
     def get(self):
         self.lastModified(template.mtime('index.html'))
         self.response.out.write(template.render('index.html',
