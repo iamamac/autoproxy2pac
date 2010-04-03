@@ -46,6 +46,14 @@
           <li><a href=/gfwtest class="tooltip" title="哪些网站必须通过代理才能访问？">网址测试</a></li>
         </ul>
       </nav>
+      <div id=userpanel>
+        {%if user%}
+        {{user.nickname}}
+        <a href="{{logout_url}}">退出</a>
+        {%else%}
+        <a href="{{login_url}}" class="tooltip" title="用 Google 帐户登录以获得<em>更多功能</em> （本站无法得到你的密码）">登录</a>
+        {%endif%}
+      </div>
       <hgroup>
         <h1 id=logo>
           <a href=/>AutoProxy2PAC</a>

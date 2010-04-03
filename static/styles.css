@@ -26,7 +26,13 @@ a img {
 
 #header {
     display: block;
+    position: relative;
     margin-bottom: 30px;
+}
+
+#header a {
+    color: #444;
+    text-decoration: none;
 }
 
 #logo {
@@ -40,7 +46,6 @@ a img {
 
 #logo a {
     color: black;
-    text-decoration: none;
 }
 
 #tagline {
@@ -51,9 +56,9 @@ a img {
 
 #navigation {
     font-size: 18px;
-    float: right;
+    position: absolute;
+    left: 320px;
     margin-top: 22px;
-    width: 480px;
 }
 
 #navigation ul {
@@ -67,9 +72,10 @@ a img {
     margin: 0px 12px;
 }
 
-#navigation a {
-    color: #444;
-    text-decoration: none;
+#userpanel {
+    font-size: 14px;
+    float: right;
+    margin-top: 26px;
 }
 
 #footer {
