@@ -30,6 +30,8 @@ PRESET_PROXIES = {
     'ssh-d'        : ('ssh -D / MyEnTunnel', 'SOCKS 127.0.0.1:7070'),
 }
 
+MAX_CUSTOM_RULE_NUMBER_FOR_MIRROR = 10
+
 try:
     # Settings not under version control
     from settings2 import *
