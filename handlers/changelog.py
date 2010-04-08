@@ -9,7 +9,10 @@ from util import template, webcached
 
 def getSampleUrlFromRule(rule):
     from urllib import unquote
-    rule = unquote(rule.encode()).decode('utf-8', 'ignore')
+    try:
+        rule = unquote(rule.encode()).decode('utf-8')
+    except:
+        rule = unquote(rule.encode()).decode('gbk', 'ignore')
     if rule.startswith('||'): return 'http://' + rule[2:]
     if rule.startswith('.'): return 'http://' + rule[1:]
     if rule.startswith('|'): return rule[1:]
