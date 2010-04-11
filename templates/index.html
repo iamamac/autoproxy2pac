@@ -34,6 +34,10 @@
   #proxy-input input {
     padding: 0px;
   }
+  #config-custom {
+    font-size: 12px;
+    margin: 10px 0px 0px 7px;
+  }
   #config-submit {
     font-size: 12px;
     margin: 20px 0px 0px 25px;
@@ -55,11 +59,43 @@
 {%block deferred_script2%}
 <script src=/facebox/facebox.js></script>
 <script>
-  $('#pac-geturl').click(function() {var u=getPacUrl(); if(u) $.facebox({ajax:'/usage?u='+u});});
+  function getPacUrl() {
+    var u = $('#config input[name="name"]:checked').val();
+    if (u == 'custom') {
+      var host = $('#proxy-host').val();
+      var port = $('#proxy-port').val();
+      if (!host || !port) {
+        $.facebox("请填写代理信息或选择你使用的代理工具");
+        return;
+      }
+      u = $('#proxy-type').val() + '/' + host + '/' + port;
+    }
+    $('#config input[name="proxy"]').val(u);
+    if ($('#config input[name="customize"]').attr('checked'))
+      u = '{{pacUserUrlPrefix}}' + $('#config input[name="pacname"]').val();
+    return u;
+  }
+  $('#config input[name="customize"]').change(function() {
+    if($(this).attr('checked')) {
+      $('#custom-pane').slideDown();
+      $('#pac-geturl').text('确定');
+    } else {
+      $('#custom-pane').slideUp();
+      $('#pac-geturl').text('获取PAC地址');
+    }
+  });
+  $('#pac-geturl').click(function() {
+    var u = getPacUrl();
+    if(!u) return false;
+    $.facebox({ajax:'/usage?u='+u});
+  });
   $('#pac-download').click(function() {
     var u = getPacUrl();
     if(!u) return false;
-    $('#pac-download').attr('href','/{{pacUrlPrefix}}'+u+'?download');
+    if($('#config input[name="customize"]').attr('checked'))
+      $('#config').submit();
+    else
+      $('#pac-download').attr('href','/{{pacUrlPrefix}}'+u+'?download');
     $.facebox({ajax:'/usage'});
   });
 </script>
@@ -70,22 +106,34 @@
 {%endblock%}
 
 {%block main%}
-<form id=config onsubmit="return false">
+<form id=config method=post target=post-frame onsubmit="return customize.checked">
   <div id=config-desc><span class="tooltip" title="PAC文件本身并无翻墙功能，请<em>配合代理工具使用</em>">请选择你使用的代理</span></div>
   {% for item in presetProxies %}
   <input type=radio name=name value="{{item.0}}" onclick="$('#proxy-input').hide()">{{item.1}}<br>
   {% endfor %}
   <input type=radio name=name value=custom checked onclick="$('#proxy-input').show()">其它
   <span id=proxy-input>
-    <select name=type>
-      <option value=PROXY>HTTP</option>
-      <option value=SOCKS>SOCKS</option>
+    <select id=proxy-type>
+      <option value=proxy>HTTP</option>
+      <option value=socks>SOCKS</option>
     </select>
-    <input name=host placeholder="IP / 域名" value="127.0.0.1" size=15> :
-    <input name=port placeholder="端口" size=5 pattern="[0-9]{1,5}">
+    <input id=proxy-host placeholder="IP / 域名" value="127.0.0.1" size=15> :
+    <input id=proxy-port placeholder="端口" size=5 pattern="[0-9]{1,5}">
   </span>
+  <input type=hidden name=proxy>
+  <div id=config-custom>
+    {%if user%}
+    <input type=checkbox name=customize>自定义设置
+    <div id=custom-pane>
+      <textarea name=addrules rows=5 cols=45></textarea>
+      http://pac.autoproxy.org/pac/u/<input name=pacname value="{{user.nickname}}" size=15 readonly>
+    </div>
+    {%else%}
+    <span class="tooltip" title="此功能需<em>登录</em>后使用"><input type=checkbox disabled>使用自定义规则</span>
+    {%endif%}
+  </div>
   <div id=config-submit>
-    <button type=button id=pac-geturl class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）">获取PAC地址</button> 或
+    <button name=usage value=online id=pac-geturl class="tooltip" title="使用在线版PAC，享受实时更新的代理规则（推荐）">获取PAC地址</button> 或
     <a id=pac-download class="tooltip" title="将PAC文件下载到本地使用，请定期重新下载保持最新" href=# target=post-frame>下载PAC文件</a>
   </div>
   <iframe name=post-frame style="display:none;"></iframe>

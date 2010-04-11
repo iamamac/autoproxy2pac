@@ -126,6 +126,7 @@ div.feedburnerFeedBlock {
 }
 
 div.feedburnerFeedBlock > ul {
+    white-space: nowrap;
     list-style-type: none;
     padding: 0px;
 }

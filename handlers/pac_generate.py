@@ -13,7 +13,8 @@ from google.appengine.api import memcache
 import autoproxy2pac
 from models import RuleList, UserSetting
 from util import useragent, webcached
-from settings import DEBUG, MAIN_SERVER, PRESET_PROXIES, MIRRORS, RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA, MAX_CUSTOM_RULE_NUMBER_FOR_MIRROR
+from settings import DEBUG, MAIN_SERVER, PRESET_PROXIES, MIRRORS, RATELIMIT_ENABLED, RATELIMIT_DURATION, RATELIMIT_QUOTA, MAX_CUSTOM_RULE_NUMBER_FOR_MIRROR, \
+    PAC_USER_URL_PREFIX
 
 privoxyConfCode = '''
   if(host == "p.p" || dnsDomainIs(host, "config.privoxy.org")) return PROXY;
@@ -48,7 +49,7 @@ class Handler(webapp.RequestHandler):
             if mirror:
                 query = ['e=' + urlsafe_b64encode(r) for r in self.customRules]
                 if download: query.append('download')
-                mirror = '%s%s?%s' % (mirror, self.urldict['proxyUrl'], '&'.join(query))
+                mirror = '%s%s?%s' % (mirror, self.proxyDict['urlpart'], '&'.join(query))
                 logging.debug('Redirect the PAC fetcher to %s', mirror)
                 if not DEBUG:
                     # A fixed server for a rate-limiting cycle
@@ -59,7 +60,7 @@ class Handler(webapp.RequestHandler):
         if RATELIMIT_ENABLED and self.isRateLimited(): return
 
         customJs = autoproxy2pac.rule2js('\n'.join([''] + self.customRules))
-        if self.urldict['proxyName'] == 'privoxy': customJs = privoxyConfCode + customJs
+        if self.proxyDict['name'] == 'privoxy': customJs = privoxyConfCode + customJs
         configs = {
             'proxyString': self.proxyString,
             'defaultString': 'DIRECT',
@@ -71,41 +72,37 @@ class Handler(webapp.RequestHandler):
         if download: self.response.headers['Content-Disposition'] = 'attachment; filename="autoproxy.pac"'
         self.response.out.write(pac)
 
-    urlPartRegxp = re.compile(r'''^
-        (?: /u/ (?P<pacName> [^/\s]+) )?
-        (?P<proxyUrl>
-            / (?P<proxyName> [^/\s]+) |
-            / (?P<type> proxy|http|socks) / (?P<host> [^/\s]+) / (?P<port> \d+)
-        )?
-    $''', re.VERBOSE)
+    userPacRegxp = re.compile(r'^%s([^/\s]+)(?:/(.+))?$' % PAC_USER_URL_PREFIX)
+    proxyRegxp = re.compile(r'''^(?P<urlpart>
+        (?P<name> [^/\s]+) |
+        (?P<type> proxy|http|socks) / (?P<host> [^/\s]+) / (?P<port> \d+)
+    )$''', re.VERBOSE)
 
     def parseRequest(self, urlpart):
-        match = self.urlPartRegxp.match('/' + unquote(urlpart).strip().lower())
-        if match is None: return
-        self.urldict = match.groupdict()
         self.customRules = self.request.get_all('c')
         self.customRules += (urlsafe_b64decode(r.encode('ascii')) for r in self.request.get_all('e'))
 
-        if self.urldict['pacName']:
-            setting = UserSetting.gql('WHERE pacName=:1', self.urldict['pacName']).get()
+        match = self.userPacRegxp.match(unquote(urlpart).strip())
+        if match:
+            setting = UserSetting.gql('WHERE pacName=:1', match.group(1).lower()).get()
             if setting is None: return
 
-            if self.urldict['proxyUrl'] is None:
-                if setting.defaultProxy in PRESET_PROXIES:
-                    self.urldict['proxyName'] = setting.defaultProxy
-                else:
-                    self.proxyString = setting.defaultProxy
+            urlpart = match.group(2) or setting.defaultProxy
             self.customRules += setting.customRules
             self.settingTime = setting.lastModified
         else:
             self.settingTime = datetime.min
 
-        if self.urldict['proxyName']:
-            if self.urldict['proxyName'] not in PRESET_PROXIES: return
-            self.proxyString = PRESET_PROXIES[self.urldict['proxyName']][1]
-        elif self.urldict['type']:
-            self.urldict['type'] = 'SOCKS' if self.urldict['type'] == 'socks' else 'PROXY'
-            self.proxyString = '%(type)s %(host)s:%(port)s' % self.urldict
+        match = self.proxyRegxp.match(urlpart.lower())
+        if match is None: return
+        self.proxyDict = match.groupdict()
+
+        if self.proxyDict['name']:
+            if self.proxyDict['name'] not in PRESET_PROXIES: return
+            self.proxyString = PRESET_PROXIES[self.proxyDict['name']][1]
+        elif self.proxyDict['type']:
+            self.proxyDict['type'] = 'SOCKS' if self.proxyDict['type'] == 'socks' else 'PROXY'
+            self.proxyString = '%(type)s %(host)s:%(port)s' % self.proxyDict
 
         # Chrome expects 'SOCKS5' instead of 'SOCKS', see http://j.mp/pac-test
         if useragent.family() == 'Chrome':
