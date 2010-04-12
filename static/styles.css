@@ -26,7 +26,13 @@ a img {
 
 #header {
     display: block;
+    position: relative;
     margin-bottom: 30px;
+}
+
+#header a {
+    color: #444;
+    text-decoration: none;
 }
 
 #logo {
@@ -40,7 +46,6 @@ a img {
 
 #logo a {
     color: black;
-    text-decoration: none;
 }
 
 #tagline {
@@ -51,9 +56,9 @@ a img {
 
 #navigation {
     font-size: 18px;
-    float: right;
+    position: absolute;
+    left: 320px;
     margin-top: 22px;
-    width: 480px;
 }
 
 #navigation ul {
@@ -67,9 +72,10 @@ a img {
     margin: 0px 12px;
 }
 
-#navigation a {
-    color: #444;
-    text-decoration: none;
+#userpanel {
+    font-size: 14px;
+    float: right;
+    margin-top: 26px;
 }
 
 #footer {
@@ -120,6 +126,7 @@ div.feedburnerFeedBlock {
 }
 
 div.feedburnerFeedBlock > ul {
+    white-space: nowrap;
     list-style-type: none;
     padding: 0px;
 }
@@ -138,4 +145,84 @@ div.feedburnerFeedBlock > ul > li > div {
 
 #creditfooter {
     display: none;
+}
+
+#tiptip_content p, #tiptip_content ul {
+    margin: 3px 0px;
+}
+
+#tiptip_content ul {
+    padding-left: 15px;
+}
+
+/* PAC configure page */
+#config {
+    font-size: 12px;
+    background-color: #c8e8f3;
+    padding: 30px 40px;
+    width: 380px;
+    margin: 0px auto;
+    -moz-border-radius: 12px; /* FF1+ */
+    -webkit-border-radius: 12px; /* Saf3+, Chrome */
+    border-radius: 12px; /* Opera 10.5, IE 9 */
+    -moz-box-shadow: 0px 0px 6px #ccc; /* FF3.5+ */
+    -webkit-box-shadow: 0px 0px 6px #ccc; /* Saf3.0+, Chrome */
+    box-shadow: 0px 0px 6px #ccc; /* Opera 10.5, IE 9.0 */
+}
+
+#config p {
+    margin: 3px 0px;
+}
+
+#config fieldset {
+    border: none;
+    padding: 5px 0px;
+}
+
+#config legend {
+    padding: 0px;
+}
+
+#config fieldset[name = proxy-select] {
+    font-size: 16px;
+}
+
+#config fieldset[name = proxy-select] legend {
+    width: 100%;
+    border-bottom: 1px dashed #147;
+    padding: 0px 5px 5px;
+    margin: 0px -5px;
+}
+
+#proxy-input {
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+#custom-pane {
+    display: none;
+    margin: 0px 12px;
+}
+
+#custom-pane label {
+    color: #444;
+}
+
+#custom-pane textarea {
+    font-family: monospace;
+    width: 340px;
+    overflow: auto;
+}
+
+#config button {
+    background-color: #369;
+    border: 1px solid #147;
+    color: #eee;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 6px 10px;
+    margin-left: 20px;
+    -moz-border-radius: 6px; /* FF1+ */
+    -webkit-border-radius: 6px; /* Saf3+, Chrome */
+    border-radius: 6px; /* Opera 10.5, IE 9 */
 }

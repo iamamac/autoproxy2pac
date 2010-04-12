@@ -67,3 +67,5 @@ class ChangeLog(db.Model):
             return ret
         else:
             return None
+
+from usersetting import UserSetting

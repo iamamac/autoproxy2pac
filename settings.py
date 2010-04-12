@@ -18,6 +18,8 @@ RATELIMIT_ENABLED = True
 
 PAC_URL_PREFIX = 'pac/' if MAIN_SERVER else ''
 
+PAC_USER_URL_PREFIX = 'u/'
+
 PRESET_PROXIES = {
     'gappproxy'    : ('GAppProxy', 'PROXY 127.0.0.1:8000'),
     'tor'          : ('Tor', 'PROXY 127.0.0.1:8118; SOCKS 127.0.0.1:9050'),
@@ -29,6 +31,8 @@ PRESET_PROXIES = {
     'privoxy'      : ('Privoxy + SOCKS', 'PROXY 127.0.0.1:8118'),
     'ssh-d'        : ('ssh -D / MyEnTunnel', 'SOCKS 127.0.0.1:7070'),
 }
+
+MAX_CUSTOM_RULE_NUMBER_FOR_MIRROR = 10
 
 try:
     # Settings not under version control
