@@ -49,7 +49,7 @@ class Handler(webapp.RequestHandler):
             if mirror:
                 query = ['e=' + urlsafe_b64encode(r) for r in self.customRules]
                 if download: query.append('download')
-                mirror = '%s%s?%s' % (mirror, self.proxyDict['urlpart'], '&'.join(query))
+                mirror = '%s/%s?%s' % (mirror, self.proxyDict['urlpart'], '&'.join(query))
                 logging.debug('Redirect the PAC fetcher to %s', mirror)
                 if not DEBUG:
                     # A fixed server for a rate-limiting cycle

@@ -49,9 +49,9 @@
       <div id=userpanel>
         {%if user%}
         {{user.nickname}}
-        <a href="{{logout_url}}">退出</a>
+        <a href="{{logout_url|escape}}">退出</a>
         {%else%}
-        <a href="{{login_url}}" class="tooltip" title="用 Google 帐户登录以获得<em>更多功能</em> （本站无法得到你的密码）">登录</a>
+        <a href="{{login_url|escape}}" class="tooltip" title="用 Google 帐户登录以获得<em>更多功能</em> （本站无法得到你的密码）">登录</a>
         {%endif%}
       </div>
       <hgroup>
